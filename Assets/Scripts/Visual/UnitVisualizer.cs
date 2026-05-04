@@ -26,14 +26,24 @@ namespace TacticalRPG.Visual
             _unit = unit;
             gameObject.name = $"Unit_{unit.DisplayName}";
 
-            // ── Capsule Body ──────────────────────────────────────────
-            GameObject capsule = GameObject.CreatePrimitive(PrimitiveType.Capsule);
-            capsule.transform.parent        = transform;
-            capsule.transform.localPosition = Vector3.zero;
-            capsule.transform.localScale    = new Vector3(0.4f, 0.4f, 0.4f);
-            capsule.GetComponent<Renderer>().material.color =
-                unit.team == UnitTeam.Player ? PlayerColor : EnemyColor;
-            Destroy(capsule.GetComponent<Collider>());
+            // ── Body ──────────────────────────────────────────
+            GameObject body;
+            if (unit.definition != null && unit.definition.visualPrefab != null)
+            {
+                body = Instantiate(unit.definition.visualPrefab, transform);
+                body.transform.localPosition = Vector3.zero;
+                // You might need to adjust scale or animator here depending on the grid system needs
+            }
+            else
+            {
+                body = GameObject.CreatePrimitive(PrimitiveType.Capsule);
+                body.transform.parent        = transform;
+                body.transform.localPosition = Vector3.zero;
+                body.transform.localScale    = new Vector3(0.4f, 0.4f, 0.4f);
+                body.GetComponent<Renderer>().material.color =
+                    unit.team == UnitTeam.Player ? PlayerColor : EnemyColor;
+                Destroy(body.GetComponent<Collider>());
+            }
 
             // ── HP Bar Background ─────────────────────────────────────
             _hpBarBg = GameObject.CreatePrimitive(PrimitiveType.Cube);
@@ -61,9 +71,9 @@ namespace TacticalRPG.Visual
             _nameText.color          = Color.white;
             _nameText.transform.localPosition = new Vector3(0f, 0.72f, 0f);
 
-            // Snap to initial position
+            // Snap to initial position (Y=0 for foot-pivot characters)
             Vector3 worldPos = GetWorldPosition();
-            _targetWorldPos = new Vector3(worldPos.x, 0.5f, worldPos.z);
+            _targetWorldPos = new Vector3(worldPos.x, 0f, worldPos.z);
             transform.position = _targetWorldPos;
 
             UpdateVisual();
@@ -89,7 +99,7 @@ namespace TacticalRPG.Visual
 
             // ── Target position (visual will lerp there) ─────────────
             Vector3 worldPos = GetWorldPosition();
-            _targetWorldPos = new Vector3(worldPos.x, 0.5f, worldPos.z);
+            _targetWorldPos = new Vector3(worldPos.x, 0f, worldPos.z);
 
             // ── HP Bar ────────────────────────────────────────────────
             float ratio     = (float)_unit.currentHP / _unit.maxHP;

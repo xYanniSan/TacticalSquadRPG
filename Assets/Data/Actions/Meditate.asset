@@ -18,3 +18,4 @@ MonoBehaviour:
   icon: {fileID: 0}
   basePower: 5
   element: 0
+  energyCost: 5

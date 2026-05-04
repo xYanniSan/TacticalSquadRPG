@@ -29,7 +29,7 @@ namespace TacticalRPG.ThirdPerson
             _controller = GetComponent<CharacterController>();
             _health = GetComponent<HealthSystem>();
 
-            var player = FindFirstObjectByType<PlayerController>();
+            var player = FindAnyObjectByType<PlayerController>();
             if (player != null)
                 _player = player.transform;
 

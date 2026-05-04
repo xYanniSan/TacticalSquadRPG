@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d2ba3d69011bdf4478ed1be54a46d7ec, type: 3}
+  m_Name: Combo_PowerStrike
+  m_EditorClassIdentifier: Assembly-CSharp::TacticalRPG.DataModels.ComboRecipeDefinition
+  recipeName: Power Strike
+  description: "Focus-enhanced punch. \xD71.5 (Focus\u2192Punch)"
+  actionIds:
+  - focus
+  - punch
+  techType: 0
+  element: 0
+  powerMultiplier: 1.5
+  castType: 0

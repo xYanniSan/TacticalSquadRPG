@@ -18,6 +18,10 @@ namespace TacticalRPG.DataModels
         public GridPosition position;
         public bool isDead;
 
+        // Energy
+        public float currentEnergy;
+        public float maxEnergy = 100f;
+
         // Current Stats (modified by buffs/items)
         public StatBlock currentStats;
 
@@ -27,6 +31,12 @@ namespace TacticalRPG.DataModels
 
         // Active Effects
         public List<StatusEffect> activeEffects;
+
+        // Active Buffs (terrain combat)
+        public List<ActiveBuff> activeBuffs = new List<ActiveBuff>();
+
+        // Pending power boost — set by standalone Focus, consumed on next attack
+        public float pendingPowerBoost;
 
         // Combat State
         public UnitIntent currentIntent;
@@ -50,6 +60,18 @@ namespace TacticalRPG.DataModels
         public void Heal(int amount)
         {
             currentHP = Mathf.Min(maxHP, currentHP + amount);
+        }
+
+        public bool SpendEnergy(float amount)
+        {
+            if (currentEnergy < amount) return false;
+            currentEnergy -= amount;
+            return true;
+        }
+
+        public void RegenEnergy(float amount)
+        {
+            currentEnergy = Mathf.Min(maxEnergy, currentEnergy + amount);
         }
     }
 }

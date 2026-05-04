@@ -15,7 +15,7 @@ MonoBehaviour:
   unitId: hero_kai
   displayName: Kai
   portrait: {fileID: 0}
-  visualPrefab: {fileID: 0}
+  visualPrefab: {fileID: 5209992459648675459, guid: 47ee03557dc44104b9977a67388ff28c, type: 3}
   baseStats:
     maxHP: 100
     attack: 10

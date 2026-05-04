@@ -18,3 +18,9 @@ MonoBehaviour:
   icon: {fileID: 0}
   basePower: 10
   element: 0
+  energyCost: 0
+  selfBuffDamage: 0
+  selfBuffCharges: 0
+  powerBoostPercent: 0
+  orbCount: 0
+  orbDamage: 0

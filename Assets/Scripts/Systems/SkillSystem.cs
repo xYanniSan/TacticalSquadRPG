@@ -9,27 +9,63 @@ namespace TacticalRPG.Systems
         public ResolvedTechnique ResolveSkill(SkillSlot slot, UnitRuntime caster)
         {
             List<ActionDefinition> actions = CollectActions(slot);
+            float rawPower = SumBasePower(actions);
+            float attackMultiplier = caster.currentStats.attack / 10f;
 
-            float rawPower          = SumBasePower(actions);
-            ElementType element     = GetDominantElement(actions);
-            ActionType actionType   = GetDominantActionType(actions);
-            TechniqueType techType  = GetTechniqueType(actionType, actions);
+            // ── Try combo library first ───────────────────────────────────────
+            var actionIds = actions.ConvertAll(a => a.actionId);
+            ComboRecipe combo = ComboLibrary.TryMatch(actionIds);
 
-            float profMultiplier    = GetProficiencyMultiplier(caster, element, actionType, techType);
-            float attackMultiplier  = caster.currentStats.attack / 10f;
+            if (combo != null)
+            {
+                float profMultiplier = GetProficiencyMultiplier(
+                    caster, combo.element, ActionType.Physical, combo.techType);
 
-            int finalPower          = (int)(rawPower * attackMultiplier * profMultiplier);
-            TargetPattern pattern   = techType == TechniqueType.Buff ? TargetPattern.Self : TargetPattern.Single;
-            string name             = BuildTechniqueName(element, techType);
+                int finalPower = (int)(rawPower * combo.powerMultiplier
+                                                * attackMultiplier
+                                                * profMultiplier);
+
+                return new ResolvedTechnique
+                {
+                    techniqueName = combo.name,
+                    type          = combo.techType,
+                    element       = combo.element,
+                    power         = finalPower,
+                    targetPattern = combo.techType == TechniqueType.Buff
+                                    ? TargetPattern.Self : TargetPattern.Single,
+                    sourceActions = actions,
+                    isCombo       = true,
+                    castType      = combo.castType
+                };
+            }
+
+            // ── No combo matched — individual actions will fire separately ────
+            ElementType element    = GetDominantElement(actions);
+            ActionType actionType  = GetDominantActionType(actions);
+            TechniqueType techType = GetTechniqueType(actionType, actions);
+
+            // castType derived from dominant action type
+            CastType castType = CastType.Mobile;
+            bool hasPhysical = false;
+            bool hasSupport  = false;
+            foreach (var a in actions)
+            {
+                if (a.actionType == ActionType.Physical) hasPhysical = true;
+                if (a.actionType == ActionType.Support)  hasSupport  = true;
+            }
+            if (hasSupport)  castType = CastType.Rooted;
+            else if (hasPhysical) castType = CastType.Melee;
 
             return new ResolvedTechnique
             {
-                techniqueName = name,
+                techniqueName = "Individual",
                 type          = techType,
                 element       = element,
-                power         = finalPower,
-                targetPattern = pattern,
-                sourceActions = actions
+                power         = 0,
+                targetPattern = TargetPattern.Single,
+                sourceActions = actions,
+                isCombo       = false,
+                castType      = castType
             };
         }
 
@@ -103,6 +139,11 @@ namespace TacticalRPG.Systems
 
         private TechniqueType GetTechniqueType(ActionType dominant, List<ActionDefinition> actions)
         {
+            // Orb summon: any action in chain is OrbSummon
+            foreach (var action in actions)
+                if (action.actionType == ActionType.OrbSummon)
+                    return TechniqueType.OrbSummon;
+
             // Detect summon pattern: chain has BOTH Elemental AND Support actions
             bool hasElemental = false;
             bool hasSupport = false;

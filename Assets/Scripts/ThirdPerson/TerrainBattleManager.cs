@@ -25,6 +25,9 @@ namespace TacticalRPG.ThirdPerson
     {
         public static TerrainBattleManager Instance { get; private set; }
 
+        public BattleExchangeCoordinator ExchangeCoordinator => _exchangeCoordinator;
+        public BattleMeleeTokenSystem     MeleeTokens         => _meleeTokens;
+
         [Header("Player Heroes (each with their own skills)")]
         [SerializeField] private List<HeroLoadout> playerHeroes;
 
@@ -35,13 +38,25 @@ namespace TacticalRPG.ThirdPerson
         [SerializeField] private ActionDefinition enemyDefaultAttack;
 
         [Header("Spawn Settings")]
+        [SerializeField] private GameObject playerPrefab;
+        [SerializeField] private GameObject enemyPrefab;
         [SerializeField] private Transform playerSpawnCenter;
         [SerializeField] private Transform enemySpawnCenter;
         [SerializeField] private float spawnSpreadRadius = 5f;
-        [SerializeField] private float spawnHeightOffset = 5f;
+
+        [Header("Battle Start")]
+        [SerializeField] private float battleStartDelay = 3f;
+
+        [Header("Combo Library (optional — overrides hardcoded recipes)")]
+        [SerializeField] private ComboLibraryAsset comboLibrary;
 
         [Header("Camera")]
         [SerializeField] private bool autoFollowCamera = true;
+
+        [Header("Debug")]
+        [SerializeField] private bool knockbackEnabled = true;
+        [SerializeField] private bool dodgeEnabled     = true;
+        [SerializeField] private bool blockEnabled     = true;
 
         [Header("Team Colors")]
         [SerializeField] private Color playerColor = new Color(0.2f, 0.4f, 0.9f);
@@ -50,36 +65,68 @@ namespace TacticalRPG.ThirdPerson
         private Systems.CombatResolutionSystem _combat;
         private Systems.SkillSystem _skill;
 
-        private List<TerrainBattleUnit> _playerUnits = new List<TerrainBattleUnit>();
-        private List<TerrainBattleUnit> _enemyUnits = new List<TerrainBattleUnit>();
-        private List<TerrainBattleUnit> _allUnits = new List<TerrainBattleUnit>();
+        // Sub-systems (added as components in Awake)
+        private BattleCombatResolver    _resolver;
+        private BattleEngagementManager _engagement;
+        private BattleSummonManager     _summons;
+        private BattleTargetFinder      _targets;
+        private BattleHitStopSystem          _hitStop;
+        private BattleKnockbackSystem        _knockback;
+        private BattleExchangeCoordinator    _exchangeCoordinator;
+        private BattleMeleeTokenSystem       _meleeTokens;
 
-        private Dictionary<int, TerrainBattleUnit> _activeSummons = new Dictionary<int, TerrainBattleUnit>();
+        private List<TerrainBattleUnit> _playerUnits = new List<TerrainBattleUnit>();
+        private List<TerrainBattleUnit> _enemyUnits  = new List<TerrainBattleUnit>();
+        private List<TerrainBattleUnit> _allUnits    = new List<TerrainBattleUnit>();
 
         private bool _battleOver;
         private BattleOutcome _outcome = BattleOutcome.None;
         private ThirdPersonCamera _cam;
 
+        private float _battleStartTimer;
+        private bool _battleStarted;
+
         private void Awake()
         {
             Instance = this;
+
+            // Attach sub-systems as sibling components
+            _resolver   = gameObject.AddComponent<BattleCombatResolver>();
+            _engagement = gameObject.AddComponent<BattleEngagementManager>();
+            _summons    = gameObject.AddComponent<BattleSummonManager>();
+            _targets    = gameObject.AddComponent<BattleTargetFinder>();
+            _hitStop              = gameObject.AddComponent<BattleHitStopSystem>();
+            _knockback            = gameObject.AddComponent<BattleKnockbackSystem>();
+            _exchangeCoordinator  = gameObject.AddComponent<BattleExchangeCoordinator>();
+            _meleeTokens          = gameObject.AddComponent<BattleMeleeTokenSystem>();
         }
 
         private void Start()
         {
             _combat = new Systems.CombatResolutionSystem();
-            _skill = new Systems.SkillSystem();
+            _skill  = new Systems.SkillSystem();
             Systems.UnitFactory.ResetIds();
+
+            // Load combo library SO (falls back to built-in if not assigned)
+            ComboLibrary.SetLibrary(comboLibrary);
 
             Cursor.lockState = CursorLockMode.Locked;
 
             SpawnPlayerHeroes();
             SpawnEnemyTeam();
 
+            // Wire sub-systems that depend on the unit lists
+            _summons.Initialize(_playerUnits, _enemyUnits, _allUnits);
+            _targets.Initialize(_playerUnits, _enemyUnits);
+            _resolver.Initialize(_combat, _skill);
+
+            _battleStartTimer = battleStartDelay;
+            _battleStarted    = battleStartDelay <= 0f;
+
             // Camera follows the first player unit
             if (autoFollowCamera && _playerUnits.Count > 0)
             {
-                _cam = FindFirstObjectByType<ThirdPersonCamera>();
+                _cam = FindAnyObjectByType<ThirdPersonCamera>();
                 if (_cam != null)
                     SetCameraTarget(_playerUnits[0].transform);
             }
@@ -90,6 +137,20 @@ namespace TacticalRPG.ThirdPerson
         private void Update()
         {
             if (_battleOver) return;
+
+            // Countdown before units engage
+            if (!_battleStarted)
+            {
+                _battleStartTimer -= Time.deltaTime;
+                if (_battleStartTimer <= 0f)
+                {
+                        _battleStarted = true;
+                            _engagement.SetBattleStarted(true);
+                            Debug.Log("[TerrainBattle] *** FIGHT! ***");
+                        }
+                        return;
+                    }
+
             CheckWinCondition();
 
             // Tab to cycle camera between player units
@@ -196,21 +257,46 @@ namespace TacticalRPG.ThirdPerson
             float angle = (360f / Mathf.Max(1, total)) * index * Mathf.Deg2Rad;
             Vector3 offset = new Vector3(
                 Mathf.Cos(angle) * spawnSpreadRadius,
-                spawnHeightOffset,
+                0f,
                 Mathf.Sin(angle) * spawnSpreadRadius);
-            Vector3 spawnPos = spawnCenter.position + offset;
+            Vector3 basePos = spawnCenter.position + offset;
+            float groundY = basePos.y;
+            if (Physics.Raycast(basePos + Vector3.up * 50f, Vector3.down, out RaycastHit hit, 100f))
+                groundY = hit.point.y;
+            Vector3 spawnPos = new Vector3(basePos.x, groundY + 2f, basePos.z);
 
-            GameObject go = GameObject.CreatePrimitive(PrimitiveType.Capsule);
+            GameObject go;
+            GameObject prefab = unit.team == UnitTeam.Player ? playerPrefab : enemyPrefab;
+            
+            // If team-specific prefab is not set, try to use the unit definition's visual prefab
+            if (prefab == null && unit.definition != null)
+                prefab = unit.definition.visualPrefab;
+
+            if (prefab != null)
+            {
+                go = Instantiate(prefab, spawnPos, Quaternion.identity);
+            }
+            else
+            {
+                go = GameObject.CreatePrimitive(PrimitiveType.Capsule);
+                go.transform.position = spawnPos;
+
+                var renderer = go.GetComponent<Renderer>();
+                if (renderer != null)
+                    renderer.material.color = color;
+            }
+
             go.name = $"{unit.DisplayName} ({unit.team})";
-            go.transform.position = spawnPos;
 
-            var renderer = go.GetComponent<Renderer>();
-            if (renderer != null)
-                renderer.material.color = color;
+            var cc = go.GetComponent<CharacterController>();
+            if (cc == null) cc = go.AddComponent<CharacterController>();
 
-            var cc = go.AddComponent<CharacterController>();
-            var health = go.AddComponent<HealthSystem>();
-            var battleUnit = go.AddComponent<TerrainBattleUnit>();
+            var health = go.GetComponent<HealthSystem>();
+            if (health == null) health = go.AddComponent<HealthSystem>();
+
+            var battleUnit = go.GetComponent<TerrainBattleUnit>();
+            if (battleUnit == null) battleUnit = go.AddComponent<TerrainBattleUnit>();
+
             battleUnit.Initialize(unit);
 
             unit.visualInstance = go;
@@ -218,6 +304,8 @@ namespace TacticalRPG.ThirdPerson
             var list = unit.team == UnitTeam.Player ? _playerUnits : _enemyUnits;
             list.Add(battleUnit);
             _allUnits.Add(battleUnit);
+
+            // All units start in Backline — RequestFrontlineSlot promotes the first 3 per side
 
             string skillInfo = unit.equippedSkills.Count > 0
                 ? $"Skill({unit.equippedSkills[0].actionSequence.Count} actions)"
@@ -227,138 +315,62 @@ namespace TacticalRPG.ThirdPerson
                       $"[{skillInfo}]");
         }
 
-        // ── Combat Resolution (called by TerrainBattleUnit) ──────────
+        // ── Combat Resolution (delegated to BattleCombatResolver) ───
 
-        public void ResolveAttack(TerrainBattleUnit attacker, TerrainBattleUnit defender)
+        /// <summary>
+        /// Called from TerrainBattleUnit.UpdateDecide — pre-resolves the skill
+        /// so the unit knows cast type before committing to a state.
+        /// </summary>
+        public ResolvedTechnique ResolveForDecide(SkillSlot skill, UnitRuntime caster)
+            => _resolver.ResolveForDecide(skill, caster);
+
+        public void ResolveBasicAttack(TerrainBattleUnit attacker, TerrainBattleUnit defender)
+            => _resolver.ResolveBasicAttack(attacker, defender);
+
+        public void ResolveSkillAttack(TerrainBattleUnit attacker, TerrainBattleUnit defender,
+            ResolvedTechnique tech)
+            => _resolver.ResolveSkillAttack(attacker, defender, tech);
+
+        public void ExecuteIndividualActions(TerrainBattleUnit attacker, TerrainBattleUnit defender,
+            SkillSlot skill)
+            => _resolver.ExecuteIndividualActions(attacker, defender, skill);
+
+        // ── Knockback (delegated to BattleKnockbackSystem) ───────────
+
+        public void ApplyKnockback(TerrainBattleUnit attacker, TerrainBattleUnit defender, int damage)
         {
-            if (attacker.IsDead || defender.IsDead) return;
-
-            CombatContext ctx;
-            string attackName = "Basic Attack";
-
-            // Try skill-based attack first
-            if (attacker.Unit.equippedSkills != null
-                && attacker.Unit.equippedSkills.Count > 0
-                && attacker.Unit.equippedSkills[0].actionSequence.Count > 0)
-            {
-                ResolvedTechnique tech = _skill.ResolveSkill(
-                    attacker.Unit.equippedSkills[0], attacker.Unit);
-
-                // ── Summon handling ──────────────────────────────
-                if (tech.type == TechniqueType.Summon)
-                {
-                    TrySummon(attacker, tech);
-                    return;
-                }
-
-                ctx = _combat.ResolveTechnique(attacker.Unit, defender.Unit, tech);
-                attackName = tech.techniqueName;
-            }
-            else
-            {
-                ctx = _combat.ResolveBasicAttack(attacker.Unit, defender.Unit);
-            }
-
-            // Sync the 3D health system
-            defender.ApplyDamage(ctx.finalDamage);
-
-            Debug.Log($"  {attacker.Unit.DisplayName} uses [{attackName}] → {defender.Unit.DisplayName} " +
-                      $"for {ctx.finalDamage} dmg (HP: {defender.Unit.currentHP}/{defender.Unit.maxHP})");
-
-            if (defender.Unit.isDead)
-                Debug.Log($"  ** {defender.Unit.DisplayName} DEFEATED! **");
+            if (knockbackEnabled)
+                _knockback.ApplyFromDamage(attacker, defender, damage);
         }
 
-        // ── Summon System ────────────────────────────────────────────
+        public bool IsDodgeEnabled  => dodgeEnabled;
+        public bool IsBlockEnabled  => blockEnabled;
 
-        private void TrySummon(TerrainBattleUnit caster, ResolvedTechnique tech)
-        {
-            int casterId = caster.Unit.runtimeId;
+        // ── Engagement Limits (delegated to BattleEngagementManager) ─
 
-            // If summon already alive, do nothing
-            if (_activeSummons.TryGetValue(casterId, out TerrainBattleUnit existing)
-                && existing != null && !existing.IsDead)
-            {
-                Debug.Log($"  {caster.Unit.DisplayName} tries [{tech.techniqueName}] — summon already active!");
-                return;
-            }
+        /// <summary>
+        /// Called by TerrainBattleUnit in Backline state. Returns true if a
+        /// frontline slot is available and the unit should engage.
+        /// </summary>
+        public bool RequestFrontlineSlot(TerrainBattleUnit unit)
+            => _engagement.RequestFrontlineSlot(unit);
 
-            // Create summon UnitRuntime
-            var summonUnit = new UnitRuntime
-            {
-                definition = null,
-                runtimeId = Systems.UnitFactory.CreateSummonId(),
-                team = caster.Unit.team,
-                currentStats = new StatBlock(
-                    tech.power * 2,           // HP scales with technique power
-                    tech.power / 2,           // ATK = half of technique power
-                    caster.Unit.currentStats.defense / 2,  // DEF = half of caster
-                    caster.Unit.currentStats.moveSpeed * 1.2f),  // Slightly faster
-                maxHP = tech.power * 2,
-                currentHP = tech.power * 2,
-                behavior = new BehaviorLoadout(BehaviorType.Aggressive),
-                equippedSkills = new System.Collections.Generic.List<SkillSlot>(),
-                activeEffects = new System.Collections.Generic.List<StatusEffect>(),
-                isDead = false,
-                overrideDisplayName = $"{caster.Unit.DisplayName}'s Summon"
-            };
+        /// <summary>
+        /// Called when a unit dies so the frontline set is updated.
+        /// </summary>
+        public void OnUnitDied(TerrainBattleUnit unit)
+            => _engagement.OnUnitDied(unit);
 
-            // Spawn capsule near caster
-            Vector3 spawnPos = caster.transform.position
-                + caster.transform.forward * 3f
-                + Vector3.up * 2f;
+        /// <summary>
+        /// Returns true if the caster already has a live summon on the field.
+        /// </summary>
+        public bool HasActiveSummon(int casterId)
+            => _summons.HasActiveSummon(casterId);
 
-            Color summonColor = caster.Unit.team == UnitTeam.Player
-                ? new Color(0.4f, 0.8f, 1f)   // Light blue for player summons
-                : new Color(1f, 0.5f, 0.3f);   // Orange for enemy summons
-
-            GameObject go = GameObject.CreatePrimitive(PrimitiveType.Capsule);
-            go.name = $"{caster.Unit.DisplayName}'s Summon";
-            go.transform.position = spawnPos;
-            go.transform.localScale = new Vector3(0.7f, 0.7f, 0.7f); // Slightly smaller
-
-            var renderer = go.GetComponent<Renderer>();
-            if (renderer != null)
-                renderer.material.color = summonColor;
-
-            go.AddComponent<CharacterController>();
-            go.AddComponent<HealthSystem>();
-            var battleUnit = go.AddComponent<TerrainBattleUnit>();
-            battleUnit.Initialize(summonUnit);
-
-            summonUnit.visualInstance = go;
-
-            var list = caster.Unit.team == UnitTeam.Player ? _playerUnits : _enemyUnits;
-            list.Add(battleUnit);
-            _allUnits.Add(battleUnit);
-
-            _activeSummons[casterId] = battleUnit;
-
-            Debug.Log($"  {caster.Unit.DisplayName} uses [{tech.techniqueName}] — SUMMONED! " +
-                      $"(HP:{summonUnit.maxHP} ATK:{summonUnit.currentStats.attack})");
-        }
-
-        // ── Target Finding (called by TerrainBattleUnit) ─────────────
+        // ── Target Finding (delegated to BattleTargetFinder) ─────────
 
         public TerrainBattleUnit GetNearestEnemy(TerrainBattleUnit unit)
-        {
-            var enemies = unit.Unit.team == UnitTeam.Player ? _enemyUnits : _playerUnits;
-            TerrainBattleUnit nearest = null;
-            float minDist = float.MaxValue;
-
-            foreach (var enemy in enemies)
-            {
-                if (enemy.IsDead) continue;
-                float dist = Vector3.Distance(unit.transform.position, enemy.transform.position);
-                if (dist < minDist)
-                {
-                    minDist = dist;
-                    nearest = enemy;
-                }
-            }
-
-            return nearest;
-        }
+            => _targets.GetNearestEnemy(unit);
 
         // ── Camera ───────────────────────────────────────────────────
 
@@ -381,7 +393,7 @@ namespace TacticalRPG.ThirdPerson
         private void SetCameraTarget(Transform target)
         {
             if (_cam == null)
-                _cam = FindFirstObjectByType<ThirdPersonCamera>();
+                _cam = FindAnyObjectByType<ThirdPersonCamera>();
             if (_cam != null)
                 _cam.SetTarget(target);
         }
@@ -418,6 +430,22 @@ namespace TacticalRPG.ThirdPerson
 
         private void OnGUI()
         {
+            // ── Countdown ────────────────────────────────────────────
+            if (!_battleStarted && !_battleOver)
+            {
+                var countStyle = new GUIStyle(GUI.skin.label)
+                {
+                    fontSize  = 96,
+                    alignment = TextAnchor.MiddleCenter,
+                    fontStyle = FontStyle.Bold
+                };
+                int seconds = Mathf.CeilToInt(_battleStartTimer);
+                countStyle.normal.textColor = seconds <= 1 ? Color.red : Color.white;
+                string countText = seconds > 0 ? seconds.ToString() : "FIGHT!";
+                GUI.Label(new Rect(0, Screen.height / 2 - 70, Screen.width, 140), countText, countStyle);
+                return;
+            }
+
             if (!_battleOver) return;
 
             var style = new GUIStyle(GUI.skin.label)

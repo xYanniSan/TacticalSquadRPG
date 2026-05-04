@@ -24,12 +24,12 @@ namespace TacticalRPG.ThirdPerson
             if (target == null)
             {
                 // Try to find any TerrainBattleUnit or PlayerController to follow
-                var battleUnit = FindFirstObjectByType<TerrainBattleUnit>();
+                var battleUnit = FindAnyObjectByType<TerrainBattleUnit>();
                 if (battleUnit != null)
                     target = battleUnit.transform;
                 else
                 {
-                    var player = FindFirstObjectByType<PlayerController>();
+                    var player = FindAnyObjectByType<PlayerController>();
                     if (player != null)
                         target = player.transform;
                 }

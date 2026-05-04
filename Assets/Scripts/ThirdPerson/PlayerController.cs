@@ -102,7 +102,7 @@ namespace TacticalRPG.ThirdPerson
                 _attackTimer = attackCooldown;
 
                 // Find nearest enemy in range
-                var enemies = FindObjectsByType<EnemyAI>(FindObjectsSortMode.None);
+                var enemies = FindObjectsByType<EnemyAI>(FindObjectsInactive.Exclude);
                 float closestDist = float.MaxValue;
                 EnemyAI closestEnemy = null;
 

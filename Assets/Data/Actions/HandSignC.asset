@@ -16,5 +16,11 @@ MonoBehaviour:
   displayName: Hand Sign C
   actionType: 1
   icon: {fileID: 0}
-  basePower: 8
-  element: 3
+  basePower: 12
+  element: 2
+  energyCost: 10
+  selfBuffDamage: 20
+  selfBuffCharges: 10
+  powerBoostPercent: 0
+  orbCount: 0
+  orbDamage: 0

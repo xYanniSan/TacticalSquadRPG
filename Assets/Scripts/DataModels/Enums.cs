@@ -43,7 +43,8 @@ namespace TacticalRPG.DataModels
         Physical,
         Elemental,
         Support,
-        Movement
+        Movement,
+        OrbSummon
     }
 
     public enum ElementType
@@ -63,7 +64,8 @@ namespace TacticalRPG.DataModels
         Buff,
         Debuff,
         Utility,
-        Summon
+        Summon,
+        OrbSummon
     }
 
     public enum TargetPattern
@@ -105,5 +107,35 @@ namespace TacticalRPG.DataModels
         PreBattle,
         Combat,
         Result
+    }
+
+    public enum CastType
+    {
+        Melee,
+        Mobile,
+        Rooted
+    }
+
+    public enum CombatRole
+    {
+        Free,       // no exchange in progress — unit attacks freely
+        Attacker,   // this unit swings first in the current exchange
+        Defender    // this unit waits and braces while the attacker swings
+    }
+
+    public enum UnitCombatState
+    {
+        Backline,
+        Engage,
+        Decide,
+        Melee,
+        CastMobile,
+        CastRooted,
+        AttackDash,   // closing the last gap before a hit lands
+        Execute,
+        Recover,
+        Stagger,      // briefly stunned after significant knockback
+        Dodging,
+        Dead
     }
 }

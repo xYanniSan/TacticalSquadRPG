@@ -15,9 +15,9 @@ MonoBehaviour:
   unitId: enemy_a
   displayName: Grunt A
   portrait: {fileID: 0}
-  visualPrefab: {fileID: 0}
+  visualPrefab: {fileID: 5209992459648675459, guid: 47ee03557dc44104b9977a67388ff28c, type: 3}
   baseStats:
-    maxHP: 60
+    maxHP: 500
     attack: 8
     defense: 3
     moveSpeed: 3
