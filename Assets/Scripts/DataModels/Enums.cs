@@ -116,6 +116,15 @@ namespace TacticalRPG.DataModels
         Rooted
     }
 
+    public enum ActionMovementMode
+    {
+        InPlace,
+        ShortLunge,
+        ScriptedTravel,
+        Dash,
+        Leap
+    }
+
     public enum CombatRole
     {
         Free,       // no exchange in progress — unit attacks freely

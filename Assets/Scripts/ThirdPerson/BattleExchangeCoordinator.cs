@@ -87,12 +87,7 @@ namespace TacticalRPG.ThirdPerson
 
             // Block new exchanges while either unit is mid-animation
             if (requester.IsAnimating) return CombatRole.Free;
-            if (target.IsAnimating)
-            {
-                // Target is busy — wait as defender so we don't spin in Melee
-                requester.SetCombatRole(CombatRole.Defender);
-                return CombatRole.Defender;
-            }
+            if (target.IsAnimating)   return CombatRole.Free;
 
             // Both units free and idle — decide attacker by initiative
             if (target.CombatRole == CombatRole.Free)
@@ -175,10 +170,10 @@ namespace TacticalRPG.ThirdPerson
                 attacker.Unit?.DisplayName ?? "?",
                 $"RECOVERY COMPLETE  atk-ini={attacker.Initiative:F1}  def-ini={oldDefender.Initiative:F1}  → both Free");
 
-            // Warn if the defender is still mid-animation when freed
-            if (oldDefender.IsAnimating)
+            // Warn only if the defender is still mid-execute when freed (genuinely unexpected)
+            if (oldDefender.IsAnimating && oldDefender.CombatState == UnitCombatState.Execute)
                 CombatLogger.Instance?.Warn(oldDefender.Unit?.DisplayName ?? "?",
-                    $"Freed from Defender while still IsAnimating! state={oldDefender.CombatState}");
+                    $"Freed from Defender while still in Execute! state={oldDefender.CombatState}");
         }
     }
 }

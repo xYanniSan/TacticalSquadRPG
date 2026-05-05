@@ -90,15 +90,31 @@ namespace TacticalRPG.ThirdPerson
         {
             Instance = this;
 
-            // Attach sub-systems as sibling components
-            _resolver   = gameObject.AddComponent<BattleCombatResolver>();
-            _engagement = gameObject.AddComponent<BattleEngagementManager>();
-            _summons    = gameObject.AddComponent<BattleSummonManager>();
-            _targets    = gameObject.AddComponent<BattleTargetFinder>();
-            _hitStop              = gameObject.AddComponent<BattleHitStopSystem>();
-            _knockback            = gameObject.AddComponent<BattleKnockbackSystem>();
-            _exchangeCoordinator  = gameObject.AddComponent<BattleExchangeCoordinator>();
-            _meleeTokens          = gameObject.AddComponent<BattleMeleeTokenSystem>();
+            // Get existing Inspector-configured components first; only add if missing.
+            // AddComponent always creates a blank instance and throws away Inspector values.
+            _resolver = GetComponent<BattleCombatResolver>();
+            if (_resolver == null) _resolver = gameObject.AddComponent<BattleCombatResolver>();
+
+            _engagement = GetComponent<BattleEngagementManager>();
+            if (_engagement == null) _engagement = gameObject.AddComponent<BattleEngagementManager>();
+
+            _summons = GetComponent<BattleSummonManager>();
+            if (_summons == null) _summons = gameObject.AddComponent<BattleSummonManager>();
+
+            _targets = GetComponent<BattleTargetFinder>();
+            if (_targets == null) _targets = gameObject.AddComponent<BattleTargetFinder>();
+
+            _hitStop = GetComponent<BattleHitStopSystem>();
+            if (_hitStop == null) _hitStop = gameObject.AddComponent<BattleHitStopSystem>();
+
+            _knockback = GetComponent<BattleKnockbackSystem>();
+            if (_knockback == null) _knockback = gameObject.AddComponent<BattleKnockbackSystem>();
+
+            _exchangeCoordinator = GetComponent<BattleExchangeCoordinator>();
+            if (_exchangeCoordinator == null) _exchangeCoordinator = gameObject.AddComponent<BattleExchangeCoordinator>();
+
+            _meleeTokens = GetComponent<BattleMeleeTokenSystem>();
+            if (_meleeTokens == null) _meleeTokens = gameObject.AddComponent<BattleMeleeTokenSystem>();
         }
 
         private void Start()

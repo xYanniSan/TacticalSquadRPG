@@ -15,8 +15,12 @@ namespace TacticalRPG.ThirdPerson
         [SerializeField] private float orbitSpeed = 180f;
         [Tooltip("Radius of the orbit circle around the unit.")]
         [SerializeField] private float orbitRadius = 1.2f;
-        [Tooltip("Height above the unit's root position to orbit at.")]
+        [Tooltip("Centre height above the unit's root position.")]
         [SerializeField] private float orbitHeight = 1.4f;
+        [Tooltip("Amplitude of the vertical sine wave (Syndra-style bob).")]
+        [SerializeField] private float orbitBobAmplitude = 0.35f;
+        [Tooltip("Speed multiplier of the vertical bob (relative to orbit speed).")]
+        [SerializeField] private float orbitBobFrequency = 2f;
 
         [Header("Flight")]
         [Tooltip("How fast the orb flies toward the target (units per second).")]
@@ -27,6 +31,7 @@ namespace TacticalRPG.ThirdPerson
         // ── Runtime state ────────────────────────────────────────────
         private Transform  _owner;
         private float      _orbitAngle;   // current angle in degrees around the owner
+        private float      _bobPhase;     // per-orb phase offset for the vertical sine
 
         private bool           _flying;
         private TerrainBattleUnit _target;
@@ -42,6 +47,7 @@ namespace TacticalRPG.ThirdPerson
         {
             _owner      = owner;
             _orbitAngle = startAngleDeg;
+            _bobPhase   = startAngleDeg * Mathf.Deg2Rad;   // stagger bob per orb
             _flying     = false;
         }
 
@@ -74,14 +80,21 @@ namespace TacticalRPG.ThirdPerson
             if (_owner == null) { Destroy(gameObject); return; }
 
             _orbitAngle += orbitSpeed * Time.deltaTime;
+            _bobPhase   += orbitSpeed * orbitBobFrequency * Mathf.Deg2Rad * Time.deltaTime;
 
-            float rad = _orbitAngle * Mathf.Deg2Rad;
+            float rad  = _orbitAngle * Mathf.Deg2Rad;
+            float bob  = Mathf.Sin(_bobPhase) * orbitBobAmplitude;
             Vector3 offset = new Vector3(
                 Mathf.Cos(rad) * orbitRadius,
-                orbitHeight,
+                orbitHeight + bob,
                 Mathf.Sin(rad) * orbitRadius);
 
             transform.position = _owner.position + offset;
+
+            // Face the direction of travel around the circle
+            Vector3 tangent = new Vector3(-Mathf.Sin(rad), 0f, Mathf.Cos(rad));
+            if (tangent != Vector3.zero)
+                transform.rotation = Quaternion.LookRotation(tangent);
         }
 
         private void UpdateFlight()
