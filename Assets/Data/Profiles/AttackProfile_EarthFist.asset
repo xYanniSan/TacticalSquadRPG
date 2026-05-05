@@ -1,0 +1,32 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7f8f3a748f332494b85e4a5087022f4e, type: 3}
+  m_Name: AttackProfile_EarthFist
+  m_EditorClassIdentifier: Assembly-CSharp::TacticalRPG.DataModels.AttackProfile
+  techniqueName: Earth Fist
+  transition: {fileID: 11400000, guid: ad524a8abf080a245b245865e532a7b4, type: 2}
+  impactEventName: {fileID: 0}
+  minStartRange: 0
+  idealStartRange: 2
+  maxStartRange: 3
+  desiredImpactDistance: 1.5
+  allowedAngleDegrees: 30
+  requiresPreAlign: 1
+  requiresEngagementSlot: 1
+  canUseIfTooClose: 1
+  movementMode: 0
+  useRootMotion: 0
+  lockMovementDuringCommit: 1
+  lockRotationDuringImpact: 1
+  scriptedTravelDistance: 0
+  causesKnockback: 0
+  knockbackDistance: 0

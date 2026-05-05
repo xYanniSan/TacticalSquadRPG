@@ -77,6 +77,24 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: ba98f1fff73cca24fa4e29bb7be8fead, type: 3}
       insertIndex: -1
       addedObject: {fileID: 4117670554202767790}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: ba98f1fff73cca24fa4e29bb7be8fead, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5218366254752413518}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: ba98f1fff73cca24fa4e29bb7be8fead, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 4916857763006206228}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: ba98f1fff73cca24fa4e29bb7be8fead, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 7213541559384918818}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: ba98f1fff73cca24fa4e29bb7be8fead, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1319893607839329264}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: ba98f1fff73cca24fa4e29bb7be8fead, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 4233853830987471977}
+    - targetCorrespondingSourceObject: {fileID: 919132149155446097, guid: ba98f1fff73cca24fa4e29bb7be8fead, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 4444519510777747725}
   m_SourcePrefab: {fileID: 100100000, guid: ba98f1fff73cca24fa4e29bb7be8fead, type: 3}
 --- !u!95 &1578055311135026755 stripped
 Animator:
@@ -139,20 +157,105 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 26e5b5d80dfaf0c468c2b336a8b67d04, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TacticalRPG.ThirdPerson.TerrainBattleUnit
-  rotationSpeed: 4
-  gravity: -15
-  attackRange: 1.2
-  attackCooldown: 0.7
-  energyRegenRate: 15
-  backlineEnergyBonus: 10
   _animator: {fileID: 1578055311135026755}
   animationSpeed: 1
-  dodgeDistance: 1.2
-  dodgeMoveDuration: 0.5
-  dodgePauseDuration: 0.4
+  enableFootIK: 1
+  footRaycastDistance: 1.5
+  footIKLayerMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+--- !u!114 &5218366254752413518
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5209992459648675459}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: acea2502e273e5e4cbb8a2751d709c16, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TacticalRPG.ThirdPerson.UnitMovementController
+  gravity: -15
+  rotationSpeed: 8
+--- !u!114 &4916857763006206228
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5209992459648675459}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d76e82e7f2f63b346800c154d6f4050c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TacticalRPG.ThirdPerson.UnitAnimationDriver
+  flyingKickVariantThreshold: 0.75
+--- !u!114 &7213541559384918818
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5209992459648675459}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b7e36af9f6ce6b64d847e7d23c700f20, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TacticalRPG.ThirdPerson.UnitBrainAI
+  attackCooldownBase: 1.2
+  energyRegenRate: 15
+  backlineEnergyBonus: 10
+  attackRange: 2.5
+  latchRange: 3
+  dodgeDistance: 3.5
+  dodgeArcHeight: 1.5
+  dodgeMoveDuration: 0.3
+  dodgePauseDuration: 0.5
   dodgeEnergyCost: 10
   dodgeCooldown: 2
-  dodgeArcHeight: 1.1
-  attackDashDuration: 0.2
-  latchRange: 2
+  attackDashDuration: 0.22
+  flyingKickLungeDistance: 2.5
+  flyingKickLungeDuration: 0.35
   startingInitiative: 10
+  earthFistProfile: {fileID: 11400000, guid: f2ee6e8be74644c4e803e464591d9072, type: 2}
+--- !u!114 &1319893607839329264
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5209992459648675459}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 731354b2af891db488c81d4c3ba75f43, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TacticalRPG.ThirdPerson.Abilities.AbilityExecutor
+--- !u!114 &4233853830987471977
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5209992459648675459}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0ad50f81b1d25c441943c37a89ba23f6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Kybernetik.Animancer::Animancer.AnimancerComponent
+  _Animator: {fileID: 1578055311135026755}
+  _Transitions: {fileID: 0}
+  _ActionOnDisable: 0
+--- !u!114 &4444519510777747725
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5209992459648675459}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f88b36586917b0b44a1d71c9c32150c5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::TacticalRPG.ThirdPerson.UnitAnimancerDriver
+  _animancer: {fileID: 0}
