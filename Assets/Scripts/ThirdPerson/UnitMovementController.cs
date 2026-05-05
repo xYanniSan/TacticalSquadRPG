@@ -111,6 +111,20 @@ namespace TacticalRPG.ThirdPerson
             _cc.Move(delta);
         }
 
+        /// <summary>
+        /// Hard-teleport the unit to the given world position. Disables the
+        /// CharacterController for one frame to avoid Unity warning when
+        /// changing transform.position while CC is active.
+        /// </summary>
+        public void Teleport(Vector3 destination)
+        {
+            bool wasEnabled = _cc.enabled;
+            _cc.enabled = false;
+            transform.position = destination;
+            _cc.enabled = wasEnabled;
+            _verticalVelocity = 0f;
+        }
+
         // ── Rotation ─────────────────────────────────────────────────
 
         public void FaceTarget(Transform target)

@@ -28,6 +28,14 @@ namespace TacticalRPG.ThirdPerson
         [Tooltip("Arc height when flying toward the target.")]
         [SerializeField] private float flyArcHeight = 1.5f;
 
+        [Header("Ray Mode")]
+        [Tooltip("How long the ray beam stays visible after firing.")]
+        [SerializeField] private float rayBeamDuration = 0.18f;
+        [Tooltip("Width of the ray beam line.")]
+        [SerializeField] private float rayBeamWidth = 0.12f;
+        [Tooltip("Color of the ray beam line.")]
+        [SerializeField] private Color rayBeamColor = new Color(0.9f, 0.7f, 1f, 1f);
+
         // ── Runtime state ────────────────────────────────────────────
         private Transform  _owner;
         private float      _orbitAngle;   // current angle in degrees around the owner
@@ -63,6 +71,44 @@ namespace TacticalRPG.ThirdPerson
             _flyStart    = transform.position;
             _flyProgress = 0f;
             transform.SetParent(null);   // detach from any parent so it moves freely
+        }
+
+        /// <summary>
+        /// Fire an instant ray at the target from this orb's current position.
+        /// Applies damage immediately, draws a brief beam line, then despawns.
+        /// Used by the OrbRay skill.
+        /// </summary>
+        public void FireRay(TerrainBattleUnit target, int damage)
+        {
+            if (target == null || target.IsDead)
+            {
+                Destroy(gameObject);
+                return;
+            }
+
+            transform.SetParent(null);
+            Vector3 origin = transform.position;
+            Vector3 hit    = target.transform.position + Vector3.up * 1.0f;
+
+            target.ApplyDamage(damage);
+            CombatLogger.Instance?.Log(CombatLogger.CAT_DMG, "OrbRay",
+                $"ray hit {target.Unit?.DisplayName} for {damage}");
+
+            var beam = new GameObject("OrbRayBeam");
+            beam.transform.position = origin;
+            var lr = beam.AddComponent<LineRenderer>();
+            lr.useWorldSpace = true;
+            lr.positionCount = 2;
+            lr.SetPosition(0, origin);
+            lr.SetPosition(1, hit);
+            lr.startWidth = rayBeamWidth;
+            lr.endWidth   = rayBeamWidth * 0.4f;
+            lr.material   = new Material(Shader.Find("Sprites/Default"));
+            lr.startColor = rayBeamColor;
+            lr.endColor   = new Color(rayBeamColor.r, rayBeamColor.g, rayBeamColor.b, 0f);
+            Destroy(beam, rayBeamDuration);
+
+            Destroy(gameObject);
         }
 
         // ── Unity ────────────────────────────────────────────────────

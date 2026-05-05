@@ -143,6 +143,7 @@ Damage estimates assume **ATK = 10**, proficiency = **1.0**.
 | Sequence | Skill | Element | Mult | Cast | Notes |
 |---|---|---|---|---|---|
 | A → A → A → B → B | **Orb Strike** | None | 1.0× | Rooted | Spawns 3 orbiting orbs. Each subsequent **punch** (not kick) fires one at the target. Orb damage configured on prefab. |
+| A → A → A → A → B | **Orb Ray** | None | 1.0× | Rooted | Spawns 3 orbs that **immediately** fire instant rays at the nearest enemy (unlimited range). If the caster is within ~3u of the target at cast time, teleports ~20m in a random horizontal direction first. Damage per ray currently fixed at 15. Handled by `BattleOrbRaySystem`. |
 
 ### 4-action combos
 
@@ -378,6 +379,7 @@ Follow the standard combo-adding flow above, using your new `TechniqueType`.
 | `Utility` | (not yet implemented) | Reserved |
 | `Summon` | `BattleSummonManager.TrySummon` | Implemented |
 | `OrbSummon` | `BattleCombatResolver.ApplyOrbSummon` → `OrbBuffHandler.Spawn` | Implemented |
+| `OrbRay` | `BattleCombatResolver` → `BattleOrbRaySystem.FireOrbRay` → `OrbProjectile.FireRay` | Implemented |
 
 ---
 

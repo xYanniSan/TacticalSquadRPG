@@ -65,7 +65,8 @@ namespace TacticalRPG.DataModels
         Debuff,
         Utility,
         Summon,
-        OrbSummon
+        OrbSummon,
+        OrbRay
     }
 
     public enum TargetPattern

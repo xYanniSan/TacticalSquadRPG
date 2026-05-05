@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TacticalRPG.DataModels.ComboLibraryAsset
   recipes:
   - {fileID: 11400000, guid: c271893334dcaf14e94ebd54bcd99396, type: 2}
+  - {fileID: 11400000, guid: acabd43ea0d885e44b4a2f916141fdbc, type: 2}
   - {fileID: 11400000, guid: 43a1994bdb758684baa2d03a2181b8ec, type: 2}
   - {fileID: 11400000, guid: 0a2e05f9aaaaa3645a17b2fb4f03a949, type: 2}
   - {fileID: 11400000, guid: 9273b46dee7aeb7458ae13ae9504ee62, type: 2}
@@ -30,4 +31,3 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 5d1d94f911261124c88c4b72e87c8272, type: 2}
   - {fileID: 11400000, guid: 75b050771d3cbce4aa7c3b4427966ae4, type: 2}
   - {fileID: 11400000, guid: 18ab946442831b2448f1ec9b0caf73ac, type: 2}
-  - {fileID: 11400000, guid: 27b6ec8ddcf490345995896a2be9e925, type: 2}

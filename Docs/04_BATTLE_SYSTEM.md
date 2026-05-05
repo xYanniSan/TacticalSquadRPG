@@ -245,6 +245,7 @@ The single point where techniques actually fire and damage actually happens.
 - `ResolveSkillAttack(attacker, technique, target)` — combo attack with damage formula
 - `ApplyBuff(unit, buff)` — apply `ActiveBuff` from Elemental action
 - `ApplyOrbSummon(caster, technique)` — spawn orbs via `OrbBuffHandler`
+- Dispatch `TechniqueType.OrbRay` to `BattleOrbRaySystem.FireOrbRay`
 - `ExecuteIndividualActions(caster, target, actions)` — fallback when no combo matched
 - Dispatch on `TechniqueType` for the appropriate execution branch
 
@@ -293,6 +294,16 @@ Directional knockback and stagger on heavy hits. Suppressed when the target is b
 ### `BattleSummonManager`
 
 Spawns and tracks guardian units summoned by the Summoning combo. Maintains an active-summon list per caster, queried by `HasActiveSummon(casterId)` to prevent re-summon while a guardian is alive. Summon stats: HP = power × 2, ATK = power / 2.
+
+### `BattleOrbRaySystem`
+
+Owns the **Orb Ray** skill mechanic. On `FireOrbRay(caster, technique, orbPrefab)`:
+
+1. Acquires the nearest enemy via `BattleTargetFinder` (re-resolves at fire time so a stale `Decide` target doesn't cause a miss).
+2. If the caster is within `meleeProximityRadius` (~3u) of that target, teleports the caster `teleportDistance` (~20u) in a random horizontal direction. Ground-snapped via downward raycast against `groundLayerMask`.
+3. Spawns `defaultOrbCount` (or the source `OrbSummon` action's `orbCount`) instances of the configured `orbPrefab` in a ring around the caster, then calls `OrbProjectile.FireRay(target, damage)` on each — instant ray, instant damage, brief LineRenderer beam, despawn. Optional `perOrbFireDelay` staggers them for staccato feel.
+
+Currently uses fixed defaults (3 orbs × 15 damage). When the modifier pipeline lands, ray damage should flow through it the same as basic skill damage. The orb prefab reference is held by `BattleCombatResolver`; the resolver passes it to `FireOrbRay` so the two subsystems share one Inspector field.
 
 ### `OrbBuffHandler` (per-unit)
 

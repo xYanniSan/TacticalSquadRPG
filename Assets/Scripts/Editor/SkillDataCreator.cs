@@ -29,6 +29,13 @@ namespace TacticalRPG.Editor
                 new[] { "handsign_a","handsign_a","handsign_a","handsign_b","handsign_b" },
                 TechniqueType.OrbSummon, ElementType.None, 1.0f, CastType.Rooted));
 
+            recipeAssets.Add(MakeRecipe("Combo_OrbRay",
+                "Orb Ray",
+                "Spawns 3 orbs that immediately fire homing rays at the target. " +
+                "Teleports 20 m if the caster is in melee range. (A→A→A→A→B)",
+                new[] { "handsign_a","handsign_a","handsign_a","handsign_a","handsign_b" },
+                TechniqueType.OrbRay, ElementType.None, 1.0f, CastType.Rooted));
+
             // ── 4-action combos ────────────────────────────────────
             recipeAssets.Add(MakeRecipe("Combo_Summoning",
                 "Summoning", "Summon a guardian. Rooted. (A→B→C→Focus)",

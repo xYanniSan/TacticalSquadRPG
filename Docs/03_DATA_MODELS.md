@@ -234,6 +234,7 @@ What kind of effect a resolved combo produces:
 | `Utility` | (not yet implemented) | Reserved |
 | `Summon` | `BattleSummonManager.TrySummon` | Spawns a guardian unit |
 | `OrbSummon` | `BattleCombatResolver.ApplyOrbSummon` | Spawns N orbiting `OrbProjectile` |
+| `OrbRay` | `BattleOrbRaySystem.FireOrbRay` | Spawns N orbs that immediately fire instant rays at the target. Caster teleports if target is in melee range. |
 
 ### `CastType`
 

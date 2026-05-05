@@ -74,6 +74,7 @@ namespace TacticalRPG.ThirdPerson
         private BattleKnockbackSystem        _knockback;
         private BattleExchangeCoordinator    _exchangeCoordinator;
         private BattleMeleeTokenSystem       _meleeTokens;
+        private BattleOrbRaySystem           _orbRay;
 
         private List<TerrainBattleUnit> _playerUnits = new List<TerrainBattleUnit>();
         private List<TerrainBattleUnit> _enemyUnits  = new List<TerrainBattleUnit>();
@@ -115,6 +116,9 @@ namespace TacticalRPG.ThirdPerson
 
             _meleeTokens = GetComponent<BattleMeleeTokenSystem>();
             if (_meleeTokens == null) _meleeTokens = gameObject.AddComponent<BattleMeleeTokenSystem>();
+
+            _orbRay = GetComponent<BattleOrbRaySystem>();
+            if (_orbRay == null) _orbRay = gameObject.AddComponent<BattleOrbRaySystem>();
         }
 
         private void Start()

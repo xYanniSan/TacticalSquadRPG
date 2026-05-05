@@ -15,10 +15,14 @@ namespace TacticalRPG.ThirdPerson
         private SkillSystem _skill;
         private BattleSummonManager _summons;
         private BattleHitStopSystem _hitStop;
+        private BattleOrbRaySystem  _orbRay;
 
         [Header("Orb Skill")]
         [Tooltip("Drag the Orb prefab (must have OrbProjectile component) here.")]
         [SerializeField] private GameObject orbPrefab;
+
+        /// <summary>Exposes the orb prefab to subsystems that share it (e.g. BattleOrbRaySystem).</summary>
+        public GameObject OrbPrefab => orbPrefab;
 
         public void Initialize(CombatResolutionSystem combat, SkillSystem skill)
         {
@@ -26,6 +30,7 @@ namespace TacticalRPG.ThirdPerson
             _skill   = skill;
             _summons = GetComponent<BattleSummonManager>();
             _hitStop = GetComponent<BattleHitStopSystem>();
+            _orbRay  = GetComponent<BattleOrbRaySystem>();
         }
 
         public ResolvedTechnique ResolveForDecide(SkillSlot skill, UnitRuntime caster)
@@ -87,6 +92,12 @@ namespace TacticalRPG.ThirdPerson
             if (tech.type == TechniqueType.OrbSummon)
             {
                 ApplyOrbSummon(attacker, tech);
+                return;
+            }
+
+            if (tech.type == TechniqueType.OrbRay)
+            {
+                _orbRay?.FireOrbRay(attacker, tech, orbPrefab);
                 return;
             }
 

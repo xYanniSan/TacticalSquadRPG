@@ -62,6 +62,10 @@ namespace TacticalRPG.DataModels
                 new[] { "handsign_a","handsign_a","handsign_a","handsign_b","handsign_b" },
                 "Orb Strike", TechniqueType.OrbSummon, ElementType.None, 1.0f, CastType.Rooted),
 
+            new ComboRecipe(
+                new[] { "handsign_a","handsign_a","handsign_a","handsign_a","handsign_b" },
+                "Orb Ray", TechniqueType.OrbRay, ElementType.None, 1.0f, CastType.Rooted),
+
             // ── 4-action combos (check before shorter ones) ────────────────────
             new ComboRecipe(
                 new[] { "handsign_a", "handsign_b", "handsign_c", "focus" },
