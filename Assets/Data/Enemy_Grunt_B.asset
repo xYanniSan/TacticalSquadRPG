@@ -22,3 +22,4 @@ MonoBehaviour:
     defense: 4
     moveSpeed: 2
   defaultBehavior: 1
+  defaultStance: {fileID: 11400000, guid: 6cba3a432fce89f45a4d6b93a9ea79a8, type: 2}

@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Combo_ThunderFist
   m_EditorClassIdentifier: Assembly-CSharp::TacticalRPG.DataModels.ComboRecipeDefinition
   recipeName: Thunder Fist
-  description: "Lightning elemental punch. (B\u2192Punch)"
+  description: "Lightning 2-strike punch with stun chance. (B\u2192Punch)"
   actionIds:
   - handsign_b
   - punch
@@ -21,3 +21,17 @@ MonoBehaviour:
   element: 4
   powerMultiplier: 1.2
   castType: 0
+  speedCost: 15
+  speedGain: 0
+  speedScaling: 0
+  speedGate: 0
+  ccType: 1
+  ccDuration: 0.3
+  ccChance: 0.25
+  ccMagnitude: 1
+  targetSpeedShatter: 0
+  targetSoftCapOverride: 0
+  casterSoftCapOverride: 0
+  speedCapModifierDuration: 0
+  strikeCount: 2
+  strikeInterval: 0.2

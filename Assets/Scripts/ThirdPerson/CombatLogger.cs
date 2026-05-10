@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using UnityEngine.InputSystem;
 
@@ -42,8 +43,18 @@ namespace TacticalRPG.ThirdPerson
         [Tooltip("Also print every entry to the Unity Console (noisy — disable for performance).")]
         [SerializeField] private bool echoToConsole = false;
 
+        [Header("File output (auto-test pipeline)")]
+        [Tooltip("Append every entry in real time to Logs/combat-current.log. Lets external " +
+                 "tools (auto-tester) read combat output without pressing L.")]
+        [SerializeField] private bool writeToFile = true;
+        [Tooltip("Folder under the project root where logs are written. Created if missing.")]
+        [SerializeField] private string logFolderRelative = "Logs";
+
         private readonly List<string> _entries = new List<string>();
         private float _startTime;
+        private StreamWriter _fileWriter;
+        private string _currentFilePath;
+        public string CurrentFilePath => _currentFilePath;
 
         // ── Categories ───────────────────────────────────────────────
         public const string CAT_STATE    = "STATE   ";
@@ -59,6 +70,59 @@ namespace TacticalRPG.ThirdPerson
             if (Instance != null && Instance != this) { Destroy(this); return; }
             Instance = this;
             _startTime = Time.time;
+            if (writeToFile) OpenLogFile();
+        }
+
+        private void OpenLogFile()
+        {
+            try
+            {
+                // Resolve project root from Application.dataPath which points
+                // to <project>/Assets — go one up.
+                string projectRoot = Path.GetDirectoryName(Application.dataPath);
+                string folder = Path.Combine(projectRoot, logFolderRelative);
+                Directory.CreateDirectory(folder);
+
+                _currentFilePath = Path.Combine(folder, "combat-current.log");
+                _fileWriter = new StreamWriter(_currentFilePath, append: false)
+                {
+                    AutoFlush = true
+                };
+                _fileWriter.WriteLine($"=== COMBAT LOG started {System.DateTime.Now:yyyy-MM-dd HH:mm:ss} ===");
+            }
+            catch (System.Exception ex)
+            {
+                Debug.LogWarning($"[CombatLogger] Could not open log file: {ex.Message}");
+                _fileWriter = null;
+            }
+        }
+
+        private void OnDestroy()
+        {
+            // Snapshot to a timestamped file for historical analysis, then close.
+            if (_fileWriter != null)
+            {
+                try
+                {
+                    _fileWriter.WriteLine("=== END ===");
+                    _fileWriter.Close();
+                    _fileWriter = null;
+
+                    // Copy combat-current.log to a session-stamped filename so a
+                    // sequence of runs can be diffed.
+                    string projectRoot = Path.GetDirectoryName(Application.dataPath);
+                    string folder = Path.Combine(projectRoot, logFolderRelative);
+                    string stamp  = System.DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss");
+                    string snapshotPath = Path.Combine(folder, $"combat-{stamp}.log");
+                    if (File.Exists(_currentFilePath))
+                        File.Copy(_currentFilePath, snapshotPath, overwrite: true);
+                }
+                catch (System.Exception ex)
+                {
+                    Debug.LogWarning($"[CombatLogger] Error finalizing log file: {ex.Message}");
+                }
+            }
+            if (Instance == this) Instance = null;
         }
 
         // ── Public API ───────────────────────────────────────────────
@@ -76,6 +140,12 @@ namespace TacticalRPG.ThirdPerson
 
             if (echoToConsole)
                 Debug.Log(entry);
+
+            if (_fileWriter != null)
+            {
+                try { _fileWriter.WriteLine(entry); }
+                catch { /* writer may be closed during shutdown */ }
+            }
         }
 
         public void Warn(string unitName, string message)

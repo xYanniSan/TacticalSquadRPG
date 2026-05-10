@@ -1,5 +1,14 @@
 {
   "permissions": {
-    "defaultMode": "bypassPermissions"
+    "allow": [
+      "Bash(del \"c:\\\\Users\\\\xichi\\\\Desktop\\\\TacticalSquadRPG\\\\Assets\\\\Scripts\\\\ThirdPerson\\\\UnitAnimancerDriver.cs\" \"c:\\\\Users\\\\xichi\\\\Desktop\\\\TacticalSquadRPG\\\\Assets\\\\Scripts\\\\ThirdPerson\\\\UnitAnimancerDriver.cs.meta\")",
+      "mcp__unityMCP__set_active_instance",
+      "Bash(ls -la \"/c/Users/xichi/.claude/settings.json\" 2>&1 | head -5; ls -d \"/c/Users/xichi/.claude\" 2>&1)",
+      "Read(//c/Users/xichi/.claude/**)"
+    ],
+    "defaultMode": "bypassPermissions",
+    "additionalDirectories": [
+      "c:\\Users\\xichi\\.claude"
+    ]
   }
 }

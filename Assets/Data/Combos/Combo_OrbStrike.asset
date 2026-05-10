@@ -24,3 +24,17 @@ MonoBehaviour:
   element: 0
   powerMultiplier: 1
   castType: 2
+  speedCost: 0
+  speedGain: 0
+  speedScaling: 0
+  speedGate: 0
+  ccType: 0
+  ccDuration: 0
+  ccChance: 0
+  ccMagnitude: 1
+  targetSpeedShatter: 0
+  targetSoftCapOverride: 0
+  casterSoftCapOverride: 0
+  speedCapModifierDuration: 0
+  strikeCount: 1
+  strikeInterval: 0.25

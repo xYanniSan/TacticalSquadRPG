@@ -13,11 +13,25 @@ MonoBehaviour:
   m_Name: Combo_CrescentKick
   m_EditorClassIdentifier: Assembly-CSharp::TacticalRPG.DataModels.ComboRecipeDefinition
   recipeName: Crescent Kick
-  description: "Focus-enhanced kick. \xD72.0 (Focus\u2192Kick)"
+  description: "Launch finisher: launch + aerial flurry + cinematic knockback. (Focus\u2192Kick)"
   actionIds:
   - focus
   - kick
-  techType: 0
+  techType: 8
   element: 0
   powerMultiplier: 2
   castType: 0
+  speedCost: 25
+  speedGain: 0
+  speedScaling: 0.7
+  speedGate: 30
+  ccType: 1
+  ccDuration: 0.5
+  ccChance: 0.3
+  ccMagnitude: 1
+  targetSpeedShatter: 25
+  targetSoftCapOverride: 0
+  casterSoftCapOverride: 0
+  speedCapModifierDuration: 0
+  strikeCount: 4
+  strikeInterval: 0.18

@@ -105,3 +105,23 @@ InitTestScene*.unity*
 
 # Auto-generated scenes by play mode tests
 /[Aa]ssets/[Ii]nit[Tt]est[Ss]cene*.unity*
+
+# ── Project-specific ──────────────────────────────────────────
+# Third-party paid asset packs (Kubold from Unity Asset Store).
+# Re-import locally; license forbids redistribution.
+/Assets/Art/FightingAnimsetPro/
+/Assets/Art/FightingAnimsetPro.meta
+/Assets/Art/MovementAnimsetPro/
+/Assets/Art/MovementAnimsetPro.meta
+
+# Unity auto-recovery dumps; never goes in version control.
+/Assets/_Recovery/
+/Assets/_Recovery.meta
+
+# Local screenshots (~20 MB and growing).
+/Assets/Screenshots/
+/Assets/Screenshots.meta
+
+# Claude Code local-machine state.
+.claude/settings.local.json
+.claude/scheduled_tasks.lock

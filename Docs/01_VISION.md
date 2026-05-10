@@ -48,7 +48,11 @@ The meaningful decisions happen *before* combat. The post-combat experience is e
 
 Combat plays out in 3D space with characters running, dodging, casting, and clashing. The camera is angled and tactical (TFT-style readability) but the combat itself is fluid 3D — not abstract grid movement. Visual readability matters more than cinematic realism, but combat should still feel kinetic and anime-flavored.
 
-See `04_BATTLE_SYSTEM.md` for the live combat design and `07_PRESENTATION.md` for the visual feel goals.
+**Combat is continuous and reactive, not turn-based or exchange-locked.** A move-based engine ticks at 20Hz; both units' moves overlap in time; defenders react to incoming attacks within real reaction windows; combos chain through cancel-into rules; cinematic moments (slow-mo, camera framing changes) emerge from key impacts rather than forced beats. See `Docs/Design/COMBAT_DESIGN.md` for the engine spec and `Docs/Design/MOVES_CATALOG.md` for the master list of move animation handles.
+
+**The animation pipeline is placeholder-friendly.** Code references animations by string name; clips are authored against those names at the developer's pace. Combat development can progress in parallel with animation authoring — missing clips fall back to placeholders or no-op without breaking the simulation.
+
+See `04_BATTLE_SYSTEM.md` for what's currently shipped and `07_PRESENTATION.md` for the visual feel goals.
 
 ### 4. Flexible hero roles
 

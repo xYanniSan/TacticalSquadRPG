@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Combo_Thunderstorm
   m_EditorClassIdentifier: Assembly-CSharp::TacticalRPG.DataModels.ComboRecipeDefinition
   recipeName: Thunderstorm
-  description: "Lightning+Water. Mobile. (B\u2192C)"
+  description: "Lightning+Water 2-strike with stun chance. (B\u2192C)"
   actionIds:
   - handsign_b
   - handsign_c
@@ -21,3 +21,17 @@ MonoBehaviour:
   element: 4
   powerMultiplier: 1.4
   castType: 1
+  speedCost: 10
+  speedGain: 0
+  speedScaling: 0
+  speedGate: 0
+  ccType: 1
+  ccDuration: 0.3
+  ccChance: 0.25
+  ccMagnitude: 1
+  targetSpeedShatter: 0
+  targetSoftCapOverride: 0
+  casterSoftCapOverride: 0
+  speedCapModifierDuration: 0
+  strikeCount: 2
+  strikeInterval: 0.2

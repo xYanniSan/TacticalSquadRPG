@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Combo_Geomagnetic
   m_EditorClassIdentifier: Assembly-CSharp::TacticalRPG.DataModels.ComboRecipeDefinition
   recipeName: Geomagnetic
-  description: "Earth+Lightning. Mobile. (A\u2192B)"
+  description: "Earth+Lightning 2-strike mobile. (A\u2192B)"
   actionIds:
   - handsign_a
   - handsign_b
@@ -21,3 +21,17 @@ MonoBehaviour:
   element: 3
   powerMultiplier: 1.4
   castType: 1
+  speedCost: 10
+  speedGain: 0
+  speedScaling: 0
+  speedGate: 0
+  ccType: 0
+  ccDuration: 0
+  ccChance: 0
+  ccMagnitude: 1
+  targetSpeedShatter: 0
+  targetSoftCapOverride: 0
+  casterSoftCapOverride: 0
+  speedCapModifierDuration: 0
+  strikeCount: 2
+  strikeInterval: 0.22

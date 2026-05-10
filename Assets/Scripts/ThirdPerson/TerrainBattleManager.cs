@@ -27,6 +27,16 @@ namespace TacticalRPG.ThirdPerson
 
         public BattleExchangeCoordinator ExchangeCoordinator => _exchangeCoordinator;
         public BattleMeleeTokenSystem     MeleeTokens         => _meleeTokens;
+        public BattleAnimancerDriver      AnimancerDriver     => _animancerDriver;
+        public BattleSpeedSystem          Speed               => _speed;
+        public BattleStatusEffectSystem   StatusEffects       => _statusEffects;
+        public BattleCombatResolver       CombatResolver      => _resolver;
+        public BattleMovementSystem       Movement            => _movement;
+        public BattleTargetFinder         TargetFinder        => _targets;
+        public BattleMovementChoreography Choreography        => _choreography;
+        public BattleCombatEngine         CombatEngine        => _combatEngine;
+        public bool                       UseMoveEngine       => useMoveBasedEngine;
+        public bool                       IsBattleOver        => _battleOver;
 
         [Header("Player Heroes (each with their own skills)")]
         [SerializeField] private List<HeroLoadout> playerHeroes;
@@ -49,6 +59,12 @@ namespace TacticalRPG.ThirdPerson
 
         [Header("Combo Library (optional — overrides hardcoded recipes)")]
         [SerializeField] private ComboLibraryAsset comboLibrary;
+
+        [Header("Combat Engine")]
+        [Tooltip("When true, the move-based combat engine drives all combat (20Hz tick, frame-data " +
+                 "moves, paired reactions). Legacy state-machine combat is suppressed for engine-" +
+                 "controlled units. See COMBAT_DESIGN 'Combat engine — move-based, frame-data driven'.")]
+        [SerializeField] private bool useMoveBasedEngine = true;
 
         [Header("Camera")]
         [SerializeField] private bool autoFollowCamera = true;
@@ -75,6 +91,12 @@ namespace TacticalRPG.ThirdPerson
         private BattleExchangeCoordinator    _exchangeCoordinator;
         private BattleMeleeTokenSystem       _meleeTokens;
         private BattleOrbRaySystem           _orbRay;
+        private BattleAnimancerDriver        _animancerDriver;
+        private BattleSpeedSystem            _speed;
+        private BattleStatusEffectSystem     _statusEffects;
+        private BattleMovementSystem         _movement;
+        private BattleMovementChoreography   _choreography;
+        private BattleCombatEngine           _combatEngine;
 
         private List<TerrainBattleUnit> _playerUnits = new List<TerrainBattleUnit>();
         private List<TerrainBattleUnit> _enemyUnits  = new List<TerrainBattleUnit>();
@@ -119,6 +141,24 @@ namespace TacticalRPG.ThirdPerson
 
             _orbRay = GetComponent<BattleOrbRaySystem>();
             if (_orbRay == null) _orbRay = gameObject.AddComponent<BattleOrbRaySystem>();
+
+            _animancerDriver = GetComponent<BattleAnimancerDriver>();
+            if (_animancerDriver == null) _animancerDriver = gameObject.AddComponent<BattleAnimancerDriver>();
+
+            _speed = GetComponent<BattleSpeedSystem>();
+            if (_speed == null) _speed = gameObject.AddComponent<BattleSpeedSystem>();
+
+            _statusEffects = GetComponent<BattleStatusEffectSystem>();
+            if (_statusEffects == null) _statusEffects = gameObject.AddComponent<BattleStatusEffectSystem>();
+
+            _movement = GetComponent<BattleMovementSystem>();
+            if (_movement == null) _movement = gameObject.AddComponent<BattleMovementSystem>();
+
+            _choreography = GetComponent<BattleMovementChoreography>();
+            if (_choreography == null) _choreography = gameObject.AddComponent<BattleMovementChoreography>();
+
+            _combatEngine = GetComponent<BattleCombatEngine>();
+            if (_combatEngine == null) _combatEngine = gameObject.AddComponent<BattleCombatEngine>();
         }
 
         private void Start()
@@ -317,6 +357,12 @@ namespace TacticalRPG.ThirdPerson
             var battleUnit = go.GetComponent<TerrainBattleUnit>();
             if (battleUnit == null) battleUnit = go.AddComponent<TerrainBattleUnit>();
 
+            // Phase 14 — runtime loadout fallback. If the spawn pipeline didn't
+            // give this unit any skills (e.g. running TerrainBattleScene
+            // directly without going through Hero Config), populate a
+            // varied default set so the brain has actual combos to pick.
+            DefaultLoadoutBuilder.Apply(unit);
+
             battleUnit.Initialize(unit);
 
             unit.visualInstance = go;
@@ -432,6 +478,7 @@ namespace TacticalRPG.ThirdPerson
 
             if (allEnemiesDead)
             {
+                LogBattleSummary("Victory");
                 _battleOver = true;
                 _outcome = BattleOutcome.Victory;
                 Cursor.lockState = CursorLockMode.None;
@@ -439,11 +486,29 @@ namespace TacticalRPG.ThirdPerson
             }
             else if (allPlayersDead)
             {
+                LogBattleSummary("Defeat");
                 _battleOver = true;
                 _outcome = BattleOutcome.Defeat;
                 Cursor.lockState = CursorLockMode.None;
                 Debug.Log("=== DEFEAT! ===");
             }
+        }
+
+        /// <summary>
+        /// One-line summary at battle end so post-battle analysis (auto-tester)
+        /// can scrape outcomes from the log file without parsing every event.
+        /// </summary>
+        private void LogBattleSummary(string outcome)
+        {
+            int playerHP = 0, playerMaxHP = 0;
+            int enemyHP = 0,  enemyMaxHP = 0;
+            foreach (var p in _playerUnits) { if (p.Unit == null) continue; playerHP += p.Unit.currentHP; playerMaxHP += p.Unit.maxHP; }
+            foreach (var e in _enemyUnits)  { if (e.Unit == null) continue; enemyHP += e.Unit.currentHP;  enemyMaxHP += e.Unit.maxHP; }
+
+            float duration = Time.time;
+            CombatLogger.Instance?.Log("SUMMARY ", "BATTLE",
+                $"outcome={outcome}  duration={duration:F1}s  " +
+                $"playerHP={playerHP}/{playerMaxHP}  enemyHP={enemyHP}/{enemyMaxHP}");
         }
 
         // ── UI ───────────────────────────────────────────────────────

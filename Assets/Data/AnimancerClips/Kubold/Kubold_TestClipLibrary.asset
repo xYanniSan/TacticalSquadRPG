@@ -1,0 +1,475 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 44dd39398b3b3cf489b83236108050b1, type: 3}
+  m_Name: Kubold_TestClipLibrary
+  m_EditorClassIdentifier: Assembly-CSharp::TacticalRPG.Systems.Combat.BattleAnimancerClipLibrary
+  _entries:
+  - id: idle
+    transition: {fileID: 11400000, guid: bb7279c8391adf74d966f8ad53333ca0, type: 2}
+  - id: walk_forward
+    transition: {fileID: 11400000, guid: 24d8cc55b9228d14a97593e5a93f4d69, type: 2}
+  - id: run_forward
+    transition: {fileID: 11400000, guid: cb796d14ba2e3864c8ff4c23042490a0, type: 2}
+  - id: punch
+    transition: {fileID: 11400000, guid: 75ec28f54f7d94a4983f322e1474d24d, type: 2}
+  - id: kick
+    transition: {fileID: 11400000, guid: e0ffb55a3333e3e4bbc1c43570e6a81d, type: 2}
+  - id: block
+    transition: {fileID: 11400000, guid: 6943226a83a933a4ab11200a49c793ee, type: 2}
+  - id: dodge
+    transition: {fileID: 11400000, guid: f88ef479938656c4d89eb63a2130882a, type: 2}
+  - id: hit_react
+    transition: {fileID: 11400000, guid: 7e7f7cfd1a67ab84c90751f85757c78c, type: 2}
+  - id: locomotion_walk_forward
+    transition: {fileID: 11400000, guid: 24d8cc55b9228d14a97593e5a93f4d69, type: 2}
+  - id: locomotion_run
+    transition: {fileID: 11400000, guid: cb796d14ba2e3864c8ff4c23042490a0, type: 2}
+  - id: idle_combat_2
+    transition: {fileID: 11400000, guid: 211efdcc68c6351489e2e12c0f89ff41, type: 2}
+  - id: idle_combat_3
+    transition: {fileID: 11400000, guid: 9f8f70dbde7c47d40b3ae3c718af4282, type: 2}
+  - id: idle_combat_4
+    transition: {fileID: 11400000, guid: 768ce9c157c31444a8adadc3a8672863, type: 2}
+  - id: idle_combat_5
+    transition: {fileID: 11400000, guid: eda1fb3cf0ae4c6439208941c987a206, type: 2}
+  - id: idle_combat_6
+    transition: {fileID: 11400000, guid: f788203fc02fa7e498ce7c5e693eea8f, type: 2}
+  - id: idle_relaxed
+    transition: {fileID: 11400000, guid: bc3beee49d1bb814888ebf0af2306b98, type: 2}
+  - id: idle_relaxed_2
+    transition: {fileID: 11400000, guid: 83b9897a0dc5c5e4ebeda49a628fcca1, type: 2}
+  - id: idle_relaxed_3
+    transition: {fileID: 11400000, guid: 98cff4bb6331d0147aa85afd1c58b1bb, type: 2}
+  - id: walk_back
+    transition: {fileID: 11400000, guid: 24aa80fecd72658419635b22d05ce69b, type: 2}
+  - id: walk_strafe_L
+    transition: {fileID: 11400000, guid: d1f2ae36d235bb54ea7f12b63fa377bf, type: 2}
+  - id: walk_strafe_R
+    transition: {fileID: 11400000, guid: 4dfba88d47b156f448c1da7e498a9c83, type: 2}
+  - id: walk_back_left
+    transition: {fileID: 11400000, guid: 112c0d9532dfef64088ceece69285a2a, type: 2}
+  - id: walk_back_right
+    transition: {fileID: 11400000, guid: 51ff7671229c5da4eb8bfa9580c4626f, type: 2}
+  - id: sidestep_L
+    transition: {fileID: 11400000, guid: b40ba05411b8cbe4982b70496519274a, type: 2}
+  - id: sidestep_R
+    transition: {fileID: 11400000, guid: 7b20c7815762ec14c87051ba05bac1cc, type: 2}
+  - id: skip_forward
+    transition: {fileID: 11400000, guid: 1f600d78894d5074db41cdb221de00bd, type: 2}
+  - id: skip_forward_2
+    transition: {fileID: 11400000, guid: 9fddf19ce02744942ac0ca5a86dc7070, type: 2}
+  - id: skip_back
+    transition: {fileID: 11400000, guid: 54fe4609504fafe4ea4c2126bb602be8, type: 2}
+  - id: skip_back_2
+    transition: {fileID: 11400000, guid: dd96eb7de05f86548a2ea7b470e2fd83, type: 2}
+  - id: turn_R_90
+    transition: {fileID: 11400000, guid: bfc85b0f50db1a74f89e88e0438ad0b2, type: 2}
+  - id: turn_L_90
+    transition: {fileID: 11400000, guid: 46b86a2b8cb4d9749968918afcd81764, type: 2}
+  - id: turn_R_180
+    transition: {fileID: 11400000, guid: bd99c880f3079ca4abcef4b193506d6c, type: 2}
+  - id: turn_L_180
+    transition: {fileID: 11400000, guid: 70a0a0cc28cb1644c8648b8f02c1d0a7, type: 2}
+  - id: sprint_forward
+    transition: {fileID: 11400000, guid: 3d4e69a036277ee47ba5c08fba49d88f, type: 2}
+  - id: run_lean_R
+    transition: {fileID: 11400000, guid: 09613b3056e3dc6448a93f1cae81e7ca, type: 2}
+  - id: run_lean_L
+    transition: {fileID: 11400000, guid: aae71a98202d5a4429b888775ebd1eba, type: 2}
+  - id: run_arch_R
+    transition: {fileID: 11400000, guid: 52ab47f9baa898a4f902bd7f577c920a, type: 2}
+  - id: run_arch_L
+    transition: {fileID: 11400000, guid: 7cc60d20495fdb647be43b7d20b3a63c, type: 2}
+  - id: walk_lean_R
+    transition: {fileID: 11400000, guid: be831d18bb9352642b97f0a0ca8e1949, type: 2}
+  - id: walk_lean_L
+    transition: {fileID: 11400000, guid: e44cb07c8e32ba945815e165186dfb48, type: 2}
+  - id: walk_arch_R
+    transition: {fileID: 11400000, guid: 484af220cbd8de940a659d66df288a8b, type: 2}
+  - id: walk_arch_L
+    transition: {fileID: 11400000, guid: 84fa27405d2781e419af3944dea7d2e1, type: 2}
+  - id: attack_punch_jab
+    transition: {fileID: 11400000, guid: 75ec28f54f7d94a4983f322e1474d24d, type: 2}
+  - id: attack_punch_hook
+    transition: {fileID: 11400000, guid: e2de30c83ca772e4594b04f545dfd8c7, type: 2}
+  - id: attack_punch_uppercut
+    transition: {fileID: 11400000, guid: 7dd9c6c9af3638d4f85bfe36341569e7, type: 2}
+  - id: attack_power_strike
+    transition: {fileID: 11400000, guid: 63f0b52868da1b44d92bee26b2adf13c, type: 2}
+  - id: punch_jab_L
+    transition: {fileID: 11400000, guid: c5bd0540a57851e4b9fe419ff54a9a1e, type: 2}
+  - id: punch_hook_L
+    transition: {fileID: 11400000, guid: 2ec405cc6717a034a8430cae140cdf5d, type: 2}
+  - id: punch_uppercut_L
+    transition: {fileID: 11400000, guid: c04692dca59882045aa85814ed6c2c46, type: 2}
+  - id: punch_one_two
+    transition: {fileID: 11400000, guid: 6355f768fd9cec942863463e7e94b46d, type: 2}
+  - id: punch_one_two_three
+    transition: {fileID: 11400000, guid: 6f72661960dc212489953f338a2859a0, type: 2}
+  - id: punch_double_jab
+    transition: {fileID: 11400000, guid: 56cd6b5ce68913c4e8c3d13426e3c88b, type: 2}
+  - id: punch_double_hooks
+    transition: {fileID: 11400000, guid: bd723c88b0e94164892386ad3643505f, type: 2}
+  - id: punch_elbow_R
+    transition: {fileID: 11400000, guid: 85afa27c60f932449b9ddfd00f725c6f, type: 2}
+  - id: punch_elbow_L
+    transition: {fileID: 11400000, guid: 9949a89324d75374ca2c3dd1e079014c, type: 2}
+  - id: punch_overhand_R
+    transition: {fileID: 11400000, guid: 6f6542f7348c2c74e9d27c2cd7b53f90, type: 2}
+  - id: punch_overhand_L
+    transition: {fileID: 11400000, guid: 3644633476f49f14e93c05e27b3f5fd2, type: 2}
+  - id: punch_backfist_R
+    transition: {fileID: 11400000, guid: f0e8c0f847cb7c74aac8c4ae1a703792, type: 2}
+  - id: punch_backfist_L
+    transition: {fileID: 11400000, guid: 1189a8a6f109a064fa7b250c46ecccb2, type: 2}
+  - id: punch_backswing_R
+    transition: {fileID: 11400000, guid: ac040e35bb2083b43a06188954351931, type: 2}
+  - id: punch_rabbit_loop
+    transition: {fileID: 11400000, guid: 5db0a247d1a128b4fa50348ccd3a9e54, type: 2}
+  - id: punch_rabbit_end
+    transition: {fileID: 11400000, guid: 259152d6106c6ce42a40277ad85c32a6, type: 2}
+  - id: attack_kick_low
+    transition: {fileID: 11400000, guid: 5ebe543ba2b4a3f46b65e70cf9f31601, type: 2}
+  - id: attack_kick_crescent
+    transition: {fileID: 11400000, guid: f6433b3d24fb2634dac6fc0f67c73880, type: 2}
+  - id: kick_low_L
+    transition: {fileID: 11400000, guid: e87754344dad5e34db9b6f03505ae302, type: 2}
+  - id: kick_mid_R
+    transition: {fileID: 11400000, guid: e0ffb55a3333e3e4bbc1c43570e6a81d, type: 2}
+  - id: kick_mid_L
+    transition: {fileID: 11400000, guid: 2aa4139feed32c943a1c5856d86bab2d, type: 2}
+  - id: kick_high_R
+    transition: {fileID: 11400000, guid: 1881bf7e824af1f4da5e3161a0a6b754, type: 2}
+  - id: kick_high_straight
+    transition: {fileID: 11400000, guid: 0537b0952103a414ea2cd542c6e9d45c, type: 2}
+  - id: kick_roundhouse_R
+    transition: {fileID: 11400000, guid: 312943ed480157649b6c975d0c27cd43, type: 2}
+  - id: kick_high_round_R
+    transition: {fileID: 11400000, guid: 5f98ec374a5561b448fde2fd61e43665, type: 2}
+  - id: kick_high_round_L
+    transition: {fileID: 11400000, guid: f96704093e1443149adb9c7f1a0c3507, type: 2}
+  - id: kick_axe
+    transition: {fileID: 11400000, guid: f6433b3d24fb2634dac6fc0f67c73880, type: 2}
+  - id: kick_back_R
+    transition: {fileID: 11400000, guid: 6f92e840b9257024da8361dbef1d0d49, type: 2}
+  - id: kick_side_L
+    transition: {fileID: 11400000, guid: d3f9c851e2093cb43a87f2d375f7e82f, type: 2}
+  - id: kick_knee_R
+    transition: {fileID: 11400000, guid: af76a0ee4f2de834c9131839b19b9f07, type: 2}
+  - id: kick_knee_L
+    transition: {fileID: 11400000, guid: 6c190717abfa29a4ea3a445ac0ef2b79, type: 2}
+  - id: kick_uppercut_R
+    transition: {fileID: 11400000, guid: ac5fa342cc86d3d47bf18a1bf2fcd4fb, type: 2}
+  - id: kick_mid_back_R
+    transition: {fileID: 11400000, guid: 863f9fae857fd3c4983b5ae8413110b8, type: 2}
+  - id: kick_low_round_R
+    transition: {fileID: 11400000, guid: e61d08de5bf11c448b59ed2e87584bc1, type: 2}
+  - id: special_ground_attack
+    transition: {fileID: 11400000, guid: 4c3f0bcf4e52d8c419510f05329405bd, type: 2}
+  - id: special_superpunch
+    transition: {fileID: 11400000, guid: 63f0b52868da1b44d92bee26b2adf13c, type: 2}
+  - id: defend_block_react
+    transition: {fileID: 11400000, guid: 6943226a83a933a4ab11200a49c793ee, type: 2}
+  - id: defend_dodge_back
+    transition: {fileID: 11400000, guid: 54fe4609504fafe4ea4c2126bb602be8, type: 2}
+  - id: defend_dodge_side_left
+    transition: {fileID: 11400000, guid: b40ba05411b8cbe4982b70496519274a, type: 2}
+  - id: defend_dodge_side_right
+    transition: {fileID: 11400000, guid: 7b20c7815762ec14c87051ba05bac1cc, type: 2}
+  - id: defend_bob_weave
+    transition: {fileID: 11400000, guid: c460bf9e0442bf141885eb2838425715, type: 2}
+  - id: defend_parry
+    transition: {fileID: 11400000, guid: f58d9ff8809800242a104c0733ca0a6d, type: 2}
+  - id: defend_static_anchor
+    transition: {fileID: 11400000, guid: 0ede386ea76794b4da10965e2123f253, type: 2}
+  - id: defend_fade_out
+    transition: {fileID: 11400000, guid: 9cacc117a074a1040bc445d8d240a1e2, type: 2}
+  - id: block_start
+    transition: {fileID: 11400000, guid: 26a04a93a2cdc5b46ad6075967f506a6, type: 2}
+  - id: block_loop
+    transition: {fileID: 11400000, guid: 0ede386ea76794b4da10965e2123f253, type: 2}
+  - id: block_end
+    transition: {fileID: 11400000, guid: 0fa67921109b32244a45a00502d966f5, type: 2}
+  - id: block_mid_R
+    transition: {fileID: 11400000, guid: f58d9ff8809800242a104c0733ca0a6d, type: 2}
+  - id: block_mid_L
+    transition: {fileID: 11400000, guid: f06cffb0a6a95644ea2be9b462481f6f, type: 2}
+  - id: block_crouch_start
+    transition: {fileID: 11400000, guid: 5ca626f3494bda646b5be8cc601f9e92, type: 2}
+  - id: block_crouch_loop
+    transition: {fileID: 11400000, guid: 21c74505535dab3458959fd26d855d02, type: 2}
+  - id: block_crouch_end
+    transition: {fileID: 11400000, guid: 973a26e70bccfa84ea7bb2080ec3d6d9, type: 2}
+  - id: duck_R
+    transition: {fileID: 11400000, guid: 22e7326f466a9b54d9893100221e1d36, type: 2}
+  - id: duck_L
+    transition: {fileID: 11400000, guid: ddf850ed29feee344bb1e8a26e7da6f8, type: 2}
+  - id: duck_parry
+    transition: {fileID: 11400000, guid: c460bf9e0442bf141885eb2838425715, type: 2}
+  - id: dodge_R
+    transition: {fileID: 11400000, guid: f88ef479938656c4d89eb63a2130882a, type: 2}
+  - id: dodge_L
+    transition: {fileID: 11400000, guid: 9cacc117a074a1040bc445d8d240a1e2, type: 2}
+  - id: react_hit_light
+    transition: {fileID: 11400000, guid: 54e54cd7254234946a215c90e9446de2, type: 2}
+  - id: react_hit_heavy
+    transition: {fileID: 11400000, guid: 7e7f7cfd1a67ab84c90751f85757c78c, type: 2}
+  - id: react_hit_sweep
+    transition: {fileID: 11400000, guid: 4816e9fe476df01479e4846607c18c69, type: 2}
+  - id: react_launch_airborne
+    transition: {fileID: 11400000, guid: a407b10912e909c4e9935dfddea4fafa, type: 2}
+  - id: react_knockdown_back
+    transition: {fileID: 11400000, guid: 97ce5b3165e78a743ac050c7e91eba8c, type: 2}
+  - id: hit_high_front_weak
+    transition: {fileID: 11400000, guid: 54e54cd7254234946a215c90e9446de2, type: 2}
+  - id: hit_high_left_weak
+    transition: {fileID: 11400000, guid: f3879a587ab3e67488dd8232871fb157, type: 2}
+  - id: hit_high_right_weak
+    transition: {fileID: 11400000, guid: 171117a9b3e9fc742b3627ba47490178, type: 2}
+  - id: hit_high_upper_weak
+    transition: {fileID: 11400000, guid: 1f749ab2a133060409ceefd1e090c455, type: 2}
+  - id: hit_mid_front_weak
+    transition: {fileID: 11400000, guid: 17889e82c1c66ab4d9c37f28cd9cf7f7, type: 2}
+  - id: hit_mid_left_weak
+    transition: {fileID: 11400000, guid: 6b4ff3bfbfaf38e448d424e416c352c5, type: 2}
+  - id: hit_mid_right_weak
+    transition: {fileID: 11400000, guid: 49c0237d1c33a9247aee60d6e01c81c6, type: 2}
+  - id: hit_low_left_weak
+    transition: {fileID: 11400000, guid: 02e11687db4e2574c8927f257eeb585d, type: 2}
+  - id: hit_low_right_weak
+    transition: {fileID: 11400000, guid: 188a8e46c8374b246a6eff9e121206bf, type: 2}
+  - id: hit_high_front_med
+    transition: {fileID: 11400000, guid: 7e7f7cfd1a67ab84c90751f85757c78c, type: 2}
+  - id: hit_high_left_med
+    transition: {fileID: 11400000, guid: 092d034524949ec4ebd0f42039939065, type: 2}
+  - id: hit_high_right_med
+    transition: {fileID: 11400000, guid: c2b3aa2daf1901b45996fb804c8925f8, type: 2}
+  - id: hit_mid_front_med
+    transition: {fileID: 11400000, guid: fdeaf64d315f1bb4ea605fd8faea5f3e, type: 2}
+  - id: hit_mid_left_med
+    transition: {fileID: 11400000, guid: 8242ce8bac4cfde4db0131ddb1734f3a, type: 2}
+  - id: hit_mid_right_med
+    transition: {fileID: 11400000, guid: 6285e175bfaefc544a0bb4331c483d4d, type: 2}
+  - id: hit_low_left_med
+    transition: {fileID: 11400000, guid: 4816e9fe476df01479e4846607c18c69, type: 2}
+  - id: hit_low_right_med
+    transition: {fileID: 11400000, guid: f9a04831718789d4ca66362577b4f6e7, type: 2}
+  - id: hit_mid_back_med
+    transition: {fileID: 11400000, guid: 842fbdcde88e95b4194bda8817e83c25, type: 2}
+  - id: hit_high_back_weak
+    transition: {fileID: 11400000, guid: 0fe717fb1fd6bf24fb140f0ed5d100bd, type: 2}
+  - id: hit_high_front_stagger
+    transition: {fileID: 11400000, guid: 105aae2733961e745b5db22671931571, type: 2}
+  - id: hit_high_back_stagger
+    transition: {fileID: 11400000, guid: b33ec3d198b2e2a439ccd36d1ca0c9a1, type: 2}
+  - id: hit_mid_front_stagger
+    transition: {fileID: 11400000, guid: defc8999e9f60b048a6c841cfac0300a, type: 2}
+  - id: hit_mid_left_stagger
+    transition: {fileID: 11400000, guid: 4c274bf628e4653489836eee5319e392, type: 2}
+  - id: hit_mid_right_stagger
+    transition: {fileID: 11400000, guid: 77e58deb1a294bb4b88b6c0988002af1, type: 2}
+  - id: hit_ground_back
+    transition: {fileID: 11400000, guid: 9d348f8ff386725469187f33ce1e6602, type: 2}
+  - id: hit_ground_front
+    transition: {fileID: 11400000, guid: 6941392d9db3c6c458c161aefc834cac, type: 2}
+  - id: death_collapse
+    transition: {fileID: 11400000, guid: 947b934f7756bc8439c5523dd65281aa, type: 2}
+  - id: ko_high_R
+    transition: {fileID: 11400000, guid: 62b9b4a297d810045a8dd63e5fc245f3, type: 2}
+  - id: ko_high_L
+    transition: {fileID: 11400000, guid: 2e3dd611616569b43a552b01307958f1, type: 2}
+  - id: ko_low_R
+    transition: {fileID: 11400000, guid: a5ac077f4ec99304b8381b0d6316b928, type: 2}
+  - id: ko_low_L
+    transition: {fileID: 11400000, guid: 79f5cc1853acb454c942eac93fb66a9e, type: 2}
+  - id: ko_mid
+    transition: {fileID: 11400000, guid: 947b934f7756bc8439c5523dd65281aa, type: 2}
+  - id: ko_mid_back
+    transition: {fileID: 11400000, guid: db12d4f49b735944684d154ff9b0ef78, type: 2}
+  - id: ko_mid_powerful
+    transition: {fileID: 11400000, guid: 5e7c43d40903bce4ba7295e88102735b, type: 2}
+  - id: ko_high_powerful
+    transition: {fileID: 11400000, guid: 97ce5b3165e78a743ac050c7e91eba8c, type: 2}
+  - id: ko_high_air
+    transition: {fileID: 11400000, guid: a407b10912e909c4e9935dfddea4fafa, type: 2}
+  - id: ko_head
+    transition: {fileID: 11400000, guid: 9631ce84c07d5b84da6f36ef5d5c7db5, type: 2}
+  - id: ko_upper
+    transition: {fileID: 11400000, guid: 0ff540985ac7b634193afff4e378e934, type: 2}
+  - id: ko_upper_2
+    transition: {fileID: 11400000, guid: cd92bb49ece93f341ac325a62ba80cf4, type: 2}
+  - id: ko_upper_flip
+    transition: {fileID: 11400000, guid: 779f2b909871a9e4f9bd8113c3e674b7, type: 2}
+  - id: ko_top
+    transition: {fileID: 11400000, guid: 443fbc967d8e9e345abcc8012adf6f7c, type: 2}
+  - id: ko_crouch_mid
+    transition: {fileID: 11400000, guid: 5db162fcb945eae45bdf1a0e966ba1a7, type: 2}
+  - id: ko_crouch_mid_back
+    transition: {fileID: 11400000, guid: e142e5fc094ae1c488ac504e808f9d07, type: 2}
+  - id: getup_back
+    transition: {fileID: 11400000, guid: dbab70664b041b64d9135ebf10b77e11, type: 2}
+  - id: getup_back_180
+    transition: {fileID: 11400000, guid: 846404a731ec2e24ea238378a30895c7, type: 2}
+  - id: getup_face
+    transition: {fileID: 11400000, guid: 80d1dc860bb8c4247b4f3039c9287d44, type: 2}
+  - id: getup_face_180
+    transition: {fileID: 11400000, guid: 9aea3cb2a7907974ca0576d7a5a75bbe, type: 2}
+  - id: layback_roll
+    transition: {fileID: 11400000, guid: 6f330e9a9039de0479bffba51c3d1533, type: 2}
+  - id: loco_walk_fwd_loop
+    transition: {fileID: 11400000, guid: bca44d56c8617cf4d8282c4baed28523, type: 2}
+  - id: loco_walk_fwd_start
+    transition: {fileID: 11400000, guid: 267b0929766cc6545a3b8a6a1c69f5be, type: 2}
+  - id: loco_walk_fwd_stop_l
+    transition: {fileID: 11400000, guid: d0f8cccc0e5ba3a4fa8b8231751b8490, type: 2}
+  - id: loco_walk_fwd_stop_r
+    transition: {fileID: 11400000, guid: eb1c6ace1255eb149a4e619e05126fca, type: 2}
+  - id: loco_walk_bwd_loop
+    transition: {fileID: 11400000, guid: 0b2ff0a41bbbb72449a2332e00d9f9f9, type: 2}
+  - id: loco_walk_bwd_start
+    transition: {fileID: 11400000, guid: 0fa36c328217fd64d854ab27ca4d92e8, type: 2}
+  - id: loco_walk_bwd_stop_l
+    transition: {fileID: 11400000, guid: 4fc614d0c48d496499cf1a8ab519525b, type: 2}
+  - id: loco_walk_bwd_stop_r
+    transition: {fileID: 11400000, guid: a186e562390372642bddf9e3aa510897, type: 2}
+  - id: loco_strafe_l_loop
+    transition: {fileID: 11400000, guid: 5f347b091d94a9b40860aad06644b2cb, type: 2}
+  - id: loco_strafe_l_start
+    transition: {fileID: 11400000, guid: f2c845a945ee1a34aaade141842b618e, type: 2}
+  - id: loco_strafe_l_stop_l
+    transition: {fileID: 11400000, guid: b6630ee1947df12419778196ae08d37c, type: 2}
+  - id: loco_strafe_l_stop_r
+    transition: {fileID: 11400000, guid: 03191f403a4a763429e4f2e36d6f07cb, type: 2}
+  - id: loco_strafe_l45_loop
+    transition: {fileID: 11400000, guid: c9dd8bfce64dfaa4a80d699a92215137, type: 2}
+  - id: loco_strafe_r_loop
+    transition: {fileID: 11400000, guid: 4f9f9744a8ebb7f4faef914d3fc61016, type: 2}
+  - id: loco_strafe_r_start
+    transition: {fileID: 11400000, guid: 04ca20e0d46e7cf44800b551682b99a7, type: 2}
+  - id: loco_strafe_r_stop_l
+    transition: {fileID: 11400000, guid: 9c2c89dae2b1a364fa7cca42c860ed23, type: 2}
+  - id: loco_strafe_r_stop_r
+    transition: {fileID: 11400000, guid: bcb51c2caf1df8a4ab630e2e34975d1d, type: 2}
+  - id: loco_strafe_r135_loop
+    transition: {fileID: 11400000, guid: a9bdd6165d803d84c9bc99ea12e74e8e, type: 2}
+  - id: loco_run_fwd_loop
+    transition: {fileID: 11400000, guid: cb796d14ba2e3864c8ff4c23042490a0, type: 2}
+  - id: loco_run_fwd_start
+    transition: {fileID: 11400000, guid: a9740623f48203645aba926dd49d0c52, type: 2}
+  - id: loco_run_fwd_stop_l
+    transition: {fileID: 11400000, guid: 043f05da33c307e44aba15b5c5edab39, type: 2}
+  - id: loco_run_fwd_stop_r
+    transition: {fileID: 11400000, guid: b895a7295bd0b75429e54fac3e2d7d38, type: 2}
+  - id: loco_run_bwd_loop
+    transition: {fileID: 11400000, guid: 426b3347e752ecb42a41d20ffb061e2e, type: 2}
+  - id: loco_run_strafe_l_loop
+    transition: {fileID: 11400000, guid: 8e08f61ad72736f418893b64ba3db621, type: 2}
+  - id: loco_run_strafe_r_loop
+    transition: {fileID: 11400000, guid: 275fea06c2df6eb4ab6a2d39005e218b, type: 2}
+  - id: loco_run_strafe_l45_loop
+    transition: {fileID: 11400000, guid: d5ec899c176060c4c916e4ef881cf8ff, type: 2}
+  - id: loco_run_strafe_r45_loop
+    transition: {fileID: 11400000, guid: dd1dfdcd14d06c543a433e1133bcec43, type: 2}
+  - id: loco_run_strafe_l135_loop
+    transition: {fileID: 11400000, guid: afa3d24fd4374c14c8d7a7e20a590509, type: 2}
+  - id: loco_run_strafe_r135_loop
+    transition: {fileID: 11400000, guid: 1cb3aa1f4c5a34340a3374d7d600584a, type: 2}
+  - id: loco_walk_fwd_start_l90
+    transition: {fileID: 11400000, guid: 4455fd7b2ca99b7409534ee6927167cd, type: 2}
+  - id: loco_walk_fwd_start_r90
+    transition: {fileID: 11400000, guid: ff9294163e06a164fb77eeb94f8b8c60, type: 2}
+  - id: loco_walk_fwd_start_l135
+    transition: {fileID: 11400000, guid: 1a443cf2501d9a943a5b0b55966bb933, type: 2}
+  - id: loco_walk_fwd_start_r135
+    transition: {fileID: 11400000, guid: 53e3ea356d44e4d4a93c35582e67aad7, type: 2}
+  - id: loco_walk_fwd_start_l180
+    transition: {fileID: 11400000, guid: 4b546e4257888a440b252f4276463970, type: 2}
+  - id: loco_walk_fwd_start_r180
+    transition: {fileID: 11400000, guid: 98e9a399bd22be0458f464ee9184d0b4, type: 2}
+  - id: loco_run_fwd_start_l90
+    transition: {fileID: 11400000, guid: 93f255ac5ec2bb142a35fe82b5ccda70, type: 2}
+  - id: loco_run_fwd_start_r90
+    transition: {fileID: 11400000, guid: 2d17f904b37d90d418a4d4bc47b736b2, type: 2}
+  - id: loco_run_fwd_start_l135
+    transition: {fileID: 11400000, guid: 9045a4bc7f4af3543a3208a647d84d7d, type: 2}
+  - id: loco_run_fwd_start_r135
+    transition: {fileID: 11400000, guid: b8a8380690b9bc847b899d241e4cecb9, type: 2}
+  - id: loco_run_fwd_start_l180
+    transition: {fileID: 11400000, guid: b8379a840a85f4a45b9c3845ef3d37b7, type: 2}
+  - id: loco_run_fwd_start_r180
+    transition: {fileID: 11400000, guid: 82d64c0953c6acd459e6cf321133c1eb, type: 2}
+  - id: loco_run_fwd_turn_l180_l
+    transition: {fileID: 11400000, guid: 6c351658282060245bb080fa834cada5, type: 2}
+  - id: loco_run_fwd_turn_l180_r
+    transition: {fileID: 11400000, guid: 577d8bf8940d0264695e4338b546e186, type: 2}
+  - id: loco_run_fwd_turn_r180_l
+    transition: {fileID: 11400000, guid: 9e081d50b5c9562428caa1a9122086c5, type: 2}
+  - id: loco_run_fwd_turn_r180_r
+    transition: {fileID: 11400000, guid: 6a9a40230be0eba4a834bb514422298b, type: 2}
+  - id: loco_turn_l90
+    transition: {fileID: 11400000, guid: 039049774b8b4334f9b9197af75d65aa, type: 2}
+  - id: loco_turn_r90
+    transition: {fileID: 11400000, guid: 29a2c002c1a72234e806504d58e11730, type: 2}
+  - id: loco_turn_l180
+    transition: {fileID: 11400000, guid: cd5c6c2c0bc9759429c417185a2ab967, type: 2}
+  - id: loco_turn_r180
+    transition: {fileID: 11400000, guid: aeda86f609410294eb98adb00b39db37, type: 2}
+  - id: loco_sprint_loop
+    transition: {fileID: 11400000, guid: 3d4e69a036277ee47ba5c08fba49d88f, type: 2}
+  - id: loco_slide
+    transition: {fileID: 11400000, guid: 7974f410962cc70489c5b4dd57432bab, type: 2}
+  - id: combat_idle
+    transition: {fileID: 11400000, guid: bb7279c8391adf74d966f8ad53333ca0, type: 2}
+  - id: combat_walk_fwd_loop
+    transition: {fileID: 11400000, guid: 24d8cc55b9228d14a97593e5a93f4d69, type: 2}
+  - id: combat_walk_fwd_fast
+    transition: {fileID: 11400000, guid: 5a9d5a024936f1649a97a95142608036, type: 2}
+  - id: combat_walk_bwd_loop
+    transition: {fileID: 11400000, guid: 24aa80fecd72658419635b22d05ce69b, type: 2}
+  - id: combat_walk_l45_loop
+    transition: {fileID: 11400000, guid: d1f2ae36d235bb54ea7f12b63fa377bf, type: 2}
+  - id: combat_walk_r45_loop
+    transition: {fileID: 11400000, guid: 4dfba88d47b156f448c1da7e498a9c83, type: 2}
+  - id: combat_walk_l135_loop
+    transition: {fileID: 11400000, guid: 112c0d9532dfef64088ceece69285a2a, type: 2}
+  - id: combat_walk_r135_loop
+    transition: {fileID: 11400000, guid: 51ff7671229c5da4eb8bfa9580c4626f, type: 2}
+  - id: combat_sidestep_l
+    transition: {fileID: 11400000, guid: b40ba05411b8cbe4982b70496519274a, type: 2}
+  - id: combat_sidestep_r
+    transition: {fileID: 11400000, guid: 7b20c7815762ec14c87051ba05bac1cc, type: 2}
+  - id: combat_skip_fwd
+    transition: {fileID: 11400000, guid: 1f600d78894d5074db41cdb221de00bd, type: 2}
+  - id: combat_skip_bwd
+    transition: {fileID: 11400000, guid: 54fe4609504fafe4ea4c2126bb602be8, type: 2}
+  - id: combat_dodge_l
+    transition: {fileID: 11400000, guid: 9cacc117a074a1040bc445d8d240a1e2, type: 2}
+  - id: combat_dodge_r
+    transition: {fileID: 11400000, guid: f88ef479938656c4d89eb63a2130882a, type: 2}
+  - id: combat_turn_l90
+    transition: {fileID: 11400000, guid: 46b86a2b8cb4d9749968918afcd81764, type: 2}
+  - id: combat_turn_r90
+    transition: {fileID: 11400000, guid: bfc85b0f50db1a74f89e88e0438ad0b2, type: 2}
+  - id: combat_turn_l180
+    transition: {fileID: 11400000, guid: 70a0a0cc28cb1644c8648b8f02c1d0a7, type: 2}
+  - id: combat_turn_r180
+    transition: {fileID: 11400000, guid: bd99c880f3079ca4abcef4b193506d6c, type: 2}
+  - id: loco_strafe_l135_loop
+    transition: {fileID: 11400000, guid: e8a97fb97c468cb4495d5db816f40b9a, type: 2}
+  - id: loco_strafe_r45_loop
+    transition: {fileID: 11400000, guid: b8f64f915a83e2e43bc1de8dbf0efb15, type: 2}
+  - id: idle_relaxed_4
+    transition: {fileID: 11400000, guid: 435f5d0760df53c43b1e8cedaccc09cd, type: 2}
+  - id: idle_relaxed_5
+    transition: {fileID: 11400000, guid: 4f5a04038ad03564ab2da55c072e78e9, type: 2}
+  - id: idle_relaxed_6
+    transition: {fileID: 11400000, guid: 1734cef42acefef47888845749f59e87, type: 2}

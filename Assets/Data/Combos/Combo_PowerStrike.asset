@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Combo_PowerStrike
   m_EditorClassIdentifier: Assembly-CSharp::TacticalRPG.DataModels.ComboRecipeDefinition
   recipeName: Power Strike
-  description: "Focus-enhanced punch. \xD71.5 (Focus\u2192Punch)"
+  description: "Focus-enhanced single heavy hit, scales with speed. (Focus\u2192Punch)"
   actionIds:
   - focus
   - punch
@@ -21,3 +21,17 @@ MonoBehaviour:
   element: 0
   powerMultiplier: 1.5
   castType: 0
+  speedCost: 15
+  speedGain: 0
+  speedScaling: 0.5
+  speedGate: 0
+  ccType: 2
+  ccDuration: 1
+  ccChance: 0.4
+  ccMagnitude: 0.25
+  targetSpeedShatter: 0
+  targetSoftCapOverride: 0
+  casterSoftCapOverride: 0
+  speedCapModifierDuration: 0
+  strikeCount: 1
+  strikeInterval: 0.25

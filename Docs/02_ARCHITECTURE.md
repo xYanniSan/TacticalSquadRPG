@@ -91,12 +91,18 @@ A subsystem is a `MonoBehaviour` that:
 | `BattleMeleeTokenSystem` | Limits how many units can press one target (max 3); excess units orbit |
 | `BattleEngagementManager` | Manages frontline slot availability and backline promotion |
 | `BattleTargetFinder` | Nearest-enemy target acquisition |
-| `BattleHitStopSystem` | Short freeze frames on hit (`Light` / `Medium` / `Heavy`) |
+| `BattleHitStopSystem` | Short global freeze frames on hit via `Time.timeScale` (`Light` / `Medium` / `Heavy`) |
+| `BattleAnimancerDriver` | Centralized Animancer Pro playback; per-unit registry, `AttackProfile` execution, per-unit hit-stop |
+| `BattleSpeedSystem` | Owns the kinetic Speed pool per unit (idle drain, movement gain, soft/hard caps, speed bands, per-unit cap overrides) |
+| `BattleMovementSystem` | Per-unit `MovementIntent` registry; exposes per-intent gain rate consumed by `BattleSpeedSystem` |
+| `BattleStatusEffectSystem` | Per-unit CC/status effect registry (Stun, Slow today; Interrupt/Knockdown reserved) |
 | `BattleKnockbackSystem` | Directional knockback and stagger; suppressed when target blocks |
 | `BattleSummonManager` | Spawns and tracks guardian units summoned by combos |
+| `BattleOrbRaySystem` | Orb Ray skill: re-acquires target, optional teleport, spawns orbs, fires instant rays |
 | `OrbBuffHandler` (per-unit) | Tracks orbiting `OrbProjectile` instances; fires one per punch |
 | `CombatLogger` | In-memory timestamped combat diagnostic log |
 | `HealthSystem` | HP tracking and floating-bar sync |
+| `SpeedBarUI` (per-unit) | Screen-space speed bar above each unit, fed by `BattleSpeedSystem` |
 
 These together implement the combat behavior described in `04_BATTLE_SYSTEM.md`. New combat behavior should follow this same pattern.
 

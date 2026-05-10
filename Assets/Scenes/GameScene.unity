@@ -407,7 +407,8 @@ MonoBehaviour:
   mouseSensitivity: 2
   minPitch: -20
   maxPitch: 60
-  smoothSpeed: 10
+  positionSmoothTime: 0.18
+  maxCatchUpSpeed: 35
 --- !u!114 &382445734
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -555,8 +556,11 @@ MonoBehaviour:
     - {fileID: 11400000, guid: 86434d0c4325a5043929c7fb61f01bc5, type: 2}
     - {fileID: 11400000, guid: 86434d0c4325a5043929c7fb61f01bc5, type: 2}
     - {fileID: 11400000, guid: 711c88090f9499747a7c6165c73c92fe, type: 2}
+  - unit: {fileID: 11400000, guid: f6a82e999ed2afb4a9b40695c197fea7, type: 2}
+    actions: []
   enemyTeam:
   - {fileID: 11400000, guid: 47fde6aa310e8844c9d856799700a884, type: 2}
+  - {fileID: 11400000, guid: 9ab16ba60ceae6248992a19531960255, type: 2}
   enemyDefaultAttack: {fileID: 0}
   playerPrefab: {fileID: 5209992459648675459, guid: 47ee03557dc44104b9977a67388ff28c, type: 3}
   enemyPrefab: {fileID: 5209992459648675459, guid: 47ee03557dc44104b9977a67388ff28c, type: 3}
@@ -565,6 +569,7 @@ MonoBehaviour:
   spawnSpreadRadius: 5
   battleStartDelay: 3
   comboLibrary: {fileID: 0}
+  useMoveBasedEngine: 1
   autoFollowCamera: 1
   knockbackEnabled: 1
   dodgeEnabled: 1
@@ -600,6 +605,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::TacticalRPG.ThirdPerson.CombatLogger
   maxEntries: 500
   echoToConsole: 0
+  writeToFile: 1
+  logFolderRelative: Logs
 --- !u!114 &944406117
 MonoBehaviour:
   m_ObjectHideFlags: 0

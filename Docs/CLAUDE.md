@@ -25,6 +25,15 @@ Before starting any non-trivial task, skim these in order:
 
 For tasks involving combat changes, also read `03_DATA_MODELS.md` and `04_BATTLE_SYSTEM.md` even if they seem tangential. Combat ripples.
 
+### Combat work — required reading
+
+For **any combat-system change** (engine, brains, moves, reactions, hit resolution, choreography, animation triggering, status effects), read these two Tier 2 design docs *before writing code*:
+
+- **`Docs/Design/COMBAT_DESIGN.md`** — the move-based engine spec, brain layer, reaction system, resource model, range bands, animation contract, determinism. **Combat is move-based, frame-data driven, reactive.** If a change in code would push combat away from that model (toward state-machine-discrete, exchange-locked, or 1-second Decide cycles), stop and flag it — that's a regression.
+- **`Docs/Design/MOVES_CATALOG.md`** — the master list of every move animation handle. Code references move names from this list; new moves are added to the catalog *first*, then to code. Don't reference a move name that isn't in the catalog.
+
+The Tier 1 `04_BATTLE_SYSTEM.md` describes what is currently shipped. The Tier 2 design docs describe where the system is going. **They will diverge during the engine rewrite** — that's expected. Tier 1 catches up as code lands.
+
 ---
 
 ## Documentation tiers
@@ -42,13 +51,27 @@ These describe how systems actually work right now. They are updated **in the sa
 
 ### Tier 2 — Stable docs (intent and principles)
 
-These describe what the game is trying to be and how the code should be organized. Implementation changes do **not** touch them.
+These describe what the game is trying to be and how the code should be organized.
 
 - `01_VISION.md` — Game identity, fantasy, long-term direction
 - `02_ARCHITECTURE.md` — Architectural rules and engineering standards
 - `07_PRESENTATION.md` — Animation pipeline, visual feel goals
+- `Docs/Design/*.md` — Design specs, roadmaps, and long-term vision (combat, environment, animation catalog, etc.)
 
-**Never update Tier 2 docs without explicit user instruction.** If a task seems to require it, stop and ask — that's a sign the user's intent has shifted and they need to confirm.
+**Update Tier 2 docs in the same task as the change that affects them**, including when:
+
+- A subsystem ships, is renamed, replaced, or removed (update tables, references, and roadmap status)
+- A roadmap phase or milestone described in the doc lands (mark it shipped)
+- The user changes a design described in the doc — reflect their new direction
+- Cross-references to other docs become stale because of code or doc moves
+
+**Stop and ask before touching Tier 2 in these cases:**
+
+- The proposed edit changes *intent*, not just current state — e.g., "no multiplayer" → "snapshot multiplayer", or rewriting the architectural philosophy
+- A code change conflicts with a stated principle (e.g., adding logic to `TerrainBattleManager` that the doc says doesn't belong there) — flag it, don't unilaterally rewrite the rule away
+- The change is about long-term direction, vision, or game identity rather than current implementation
+
+The bar is: **reflecting reality is fine; redefining the goal is not.**
 
 ### Tier 3 — Forward-looking
 
@@ -66,17 +89,18 @@ The `archive/` folder contains legacy docs from the original grid-based MVP desi
 
 **Documentation maintenance is part of every task, not a separate concern.**
 
-When you complete a task that changes how a system actually works, update the relevant Tier 1 doc in the **same response**. Don't defer it. An out-of-date doc is worse than no doc.
+When you complete a task that changes how a system actually works, update the relevant doc in the **same response**. Don't defer it. An out-of-date doc is worse than no doc. This applies across all tiers — Tier 2 included, when the edit reflects shipped reality (see the tier table above for the intent/state distinction).
 
 ### What counts as a change requiring a doc update
 
-- New subsystem MonoBehaviour, new ScriptableObject type, or new enum value
+- New subsystem MonoBehaviour, new ScriptableObject type, or new enum value (update Tier 1 data/system docs and Tier 2 subsystem tables / architecture references)
 - New field on `ActionDefinition`, `ComboRecipeDefinition`, `UnitDefinition`, `UnitRuntime`, or any other live data model
 - New state in `UnitCombatState`, new transition rule, or new combat phase
 - New combo recipe, new action input, or new skill behavior path
 - Changes to energy / dodge / block / cast-type rules
 - New editor menu tool under `TacticalRPG`
 - New scene or major scene restructuring
+- Roadmap phase shipped — update the spec doc (`Docs/Design/COMBAT_DESIGN.md`, `08_ROADMAP.md`, etc.) to mark it done
 
 ### What does NOT count and should NOT trigger doc updates
 
@@ -87,7 +111,7 @@ When you complete a task that changes how a system actually works, update the re
 
 ### When in doubt
 
-Ask before editing a doc. A clarifying question is cheaper than a wrong update. **Especially** for Tier 2.
+Ask before editing a doc that defines *intent* — vision, principles, long-term direction. Edits that just bring a doc up to date with what shipped or with a design change the user asked for are routine and don't need confirmation.
 
 ---
 

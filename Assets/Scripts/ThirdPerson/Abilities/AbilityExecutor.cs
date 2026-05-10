@@ -14,6 +14,14 @@ namespace TacticalRPG.ThirdPerson.Abilities
     {
         private ActiveAbility _active;
 
+        // Same-frame guard: animation events that fire on the same frame as
+        // Run() are stale leftovers from the previous clip (Animator's clip
+        // transition isn't atomic — the old clip's tail events can fire after
+        // SetTrigger/Play). Ignoring them prevents the new ability from being
+        // marked finished by the old clip's "AttackEnd" — root cause of the
+        // observed same-frame Execute → Recover bug.
+        private int _runFrame = -1;
+
         /// <summary>Raised when the current ability reports it is done.</summary>
         public event Action OnAbilityComplete;
 
@@ -33,6 +41,7 @@ namespace TacticalRPG.ThirdPerson.Abilities
             }
 
             _active = ability;
+            _runFrame = Time.frameCount;
             _active.OnStart();
         }
 
@@ -52,7 +61,9 @@ namespace TacticalRPG.ThirdPerson.Abilities
         /// </summary>
         public void NotifyAnimationEvent(string eventName)
         {
-            _active?.OnAnimationEvent(eventName);
+            if (_active == null) return;
+            if (Time.frameCount == _runFrame) return; // drop stale events from old clip's tail
+            _active.OnAnimationEvent(eventName);
         }
 
         // ── Unity Update ──────────────────────────────────────────────

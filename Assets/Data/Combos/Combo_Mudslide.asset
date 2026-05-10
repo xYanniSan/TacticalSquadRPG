@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Combo_Mudslide
   m_EditorClassIdentifier: Assembly-CSharp::TacticalRPG.DataModels.ComboRecipeDefinition
   recipeName: Mudslide
-  description: "Earth+Water. Mobile. (A\u2192C)"
+  description: "Earth+Water 2-strike, applies Slow. (A\u2192C)"
   actionIds:
   - handsign_a
   - handsign_c
@@ -21,3 +21,17 @@ MonoBehaviour:
   element: 2
   powerMultiplier: 1.4
   castType: 1
+  speedCost: 10
+  speedGain: 0
+  speedScaling: 0
+  speedGate: 0
+  ccType: 2
+  ccDuration: 1
+  ccChance: 0.4
+  ccMagnitude: 0.25
+  targetSpeedShatter: 0
+  targetSoftCapOverride: 0
+  casterSoftCapOverride: 0
+  speedCapModifierDuration: 0
+  strikeCount: 2
+  strikeInterval: 0.22

@@ -1,0 +1,58 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c70c39d6b20ea0947af8a5495d86dda2, type: 3}
+  m_Name: attack_punch_uppercut
+  m_EditorClassIdentifier: Assembly-CSharp::TacticalRPG.DataModels.MoveDefinition
+  id: attack_punch_uppercut
+  animationName: attack_punch_uppercut
+  description: 
+  category: 3
+  startupFrames: 4
+  activeFrames: 1
+  recoveryFrames: 6
+  cancelWindowFrames: 4
+  damage: 12
+  range: 1.8
+  angleDegrees: 50
+  archetype: 2
+  reactionTag: 4
+  isAttack: 1
+  speedDamageScaling: 0
+  iFrameStart: 0
+  iFrameEnd: 0
+  superArmorFrames: 0
+  isBlock: 0
+  isParry: 0
+  incomingDamageMultiplier: 1
+  speedCost: 10
+  energyCost: 0
+  speedGate: 0
+  cancelIntoOnHit:
+  - {fileID: 11400000, guid: 643866be3194d2f4e91a4722b9abb5bd, type: 2}
+  cancelIntoOnWhiff: []
+  forwardSpeedMetersPerSecond: 0
+  lateralSpeedMetersPerSecond: 0
+  forwardDisplacementCurve:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  verticalDisplacementCurve:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  facing: 0
+  spawnsEntityPrefab: {fileID: 0}
+  spawnOffsetLocal: {x: 0, y: 0, z: 1.5}

@@ -12,7 +12,7 @@ namespace TacticalRPG.ThirdPerson.Abilities
         public TerrainBattleUnit    Unit;
         public UnitMovementController Mover;
         public UnitAnimationDriver  Anim;
-        public UnitAnimancerDriver  Animancer;    // optional — present when the unit prefab has Animancer wired
+        public BattleAnimancerDriver Animancer;   // central subsystem; null when not wired in this scene
         public TerrainBattleUnit    Target;       // may be null for self-cast abilities
         public ResolvedTechnique    Technique;    // null for basic attacks
         public SkillSlot            Skill;        // null for basic attacks

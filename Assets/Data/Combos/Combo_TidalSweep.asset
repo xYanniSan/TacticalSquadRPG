@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Combo_TidalSweep
   m_EditorClassIdentifier: Assembly-CSharp::TacticalRPG.DataModels.ComboRecipeDefinition
   recipeName: Tidal Sweep
-  description: "Water elemental kick. (C\u2192Kick)"
+  description: "Water 2-strike kick with strong slow. (C\u2192Kick)"
   actionIds:
   - handsign_c
   - kick
@@ -21,3 +21,17 @@ MonoBehaviour:
   element: 2
   powerMultiplier: 1.3
   castType: 0
+  speedCost: 15
+  speedGain: 0
+  speedScaling: 0
+  speedGate: 0
+  ccType: 2
+  ccDuration: 1.2
+  ccChance: 0.4
+  ccMagnitude: 0.3
+  targetSpeedShatter: 0
+  targetSoftCapOverride: 0
+  casterSoftCapOverride: 0
+  speedCapModifierDuration: 0
+  strikeCount: 2
+  strikeInterval: 0.22

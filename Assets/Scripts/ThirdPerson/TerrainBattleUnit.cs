@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Animancer;
+using UnityEngine;
 using TacticalRPG.DataModels;
 using TacticalRPG.ThirdPerson.Abilities;
 
@@ -34,7 +35,7 @@ namespace TacticalRPG.ThirdPerson
 
         private UnitMovementController _mover;
         private UnitAnimationDriver    _animDriver;
-        private UnitAnimancerDriver    _animancerDriver;   // optional — null when Animancer isn't wired
+        private BattleAnimancerDriver  _animancerDriver;   // central subsystem ref; null until manager has spawned it
         private UnitBrainAI            _brain;
         private AbilityExecutor        _executor;
         private HealthSystem           _health;
@@ -59,7 +60,9 @@ namespace TacticalRPG.ThirdPerson
 
             _mover           = GetComponent<UnitMovementController>();
             _animDriver      = GetComponent<UnitAnimationDriver>();
-            _animancerDriver = GetComponent<UnitAnimancerDriver>();
+            _animancerDriver = TerrainBattleManager.Instance != null
+                ? TerrainBattleManager.Instance.AnimancerDriver
+                : null;
             _brain           = GetComponent<UnitBrainAI>();
             _executor        = GetComponent<AbilityExecutor>();
 
@@ -74,7 +77,29 @@ namespace TacticalRPG.ThirdPerson
                 _animator = GetComponentInChildren<Animator>();
 
             _animDriver.Initialize(_animator, animationSpeed);
-            _animancerDriver?.Initialize(this);
+            // Register this unit's AnimancerComponent (if present) with the central driver.
+            // Driver may legitimately be null in scenes that don't host TerrainBattleManager.
+            if (_animancerDriver != null)
+            {
+                var animancer = GetComponentInChildren<AnimancerComponent>();
+                if (animancer != null)
+                    _animancerDriver.RegisterUnit(this, animancer);
+            }
+            // Register with the speed system and attach a speed bar.
+            BattleSpeedSystem speedSys = TerrainBattleManager.Instance?.Speed;
+            if (speedSys != null)
+            {
+                speedSys.RegisterUnit(this);
+                var speedBar = GetComponent<SpeedBarUI>();
+                if (speedBar == null) speedBar = gameObject.AddComponent<SpeedBarUI>();
+                speedBar.Initialize(this, speedSys);
+            }
+
+            // Live combat overlay (archetype / intent / phase / CC).
+            var overlay = GetComponent<CombatOverlayUI>();
+            if (overlay == null) overlay = gameObject.AddComponent<CombatOverlayUI>();
+            overlay.Initialize(this);
+
             _mover.Initialize();
 
             _health = GetComponent<HealthSystem>();
@@ -87,6 +112,14 @@ namespace TacticalRPG.ThirdPerson
             unit.currentEnergy = 50f;
 
             _brain.Initialize(this, _mover, _animDriver, _animancerDriver, _executor);
+
+            // Register with the move-based combat engine. The engine will
+            // skip backline units; the legacy brain still handles
+            // engagement promotion. Once promoted, the engine takes over
+            // moves/hits and the legacy state machine no-ops.
+            var engine = TerrainBattleManager.Instance?.CombatEngine;
+            if (engine != null && TerrainBattleManager.Instance.UseMoveEngine)
+                engine.RegisterUnit(this);
         }
 
         // ?? Unity Update ?????????????????????????????????????????????
@@ -149,17 +182,34 @@ namespace TacticalRPG.ThirdPerson
 
         public void OnHitFrame()
         {
+            // When the move-based engine controls this unit, animation
+            // events are decoupled from hit timing — engine uses frame
+            // counters. Drop silently to keep logs clean.
+            if (_brain != null && _brain.EngineControlled) return;
+
+            // Animation events keep firing while the underlying clip plays.
+            // Drop them outside the windows where damage timing is meaningful
+            // — fix for "OnHitFrame state=Recover" leakage observed in the
+            // combat log.
+            bool live = CombatState == UnitCombatState.Execute
+                     || CombatState == UnitCombatState.AttackDash;
             CombatLogger.Instance?.Log(CombatLogger.CAT_ANIM,
                 Unit?.DisplayName ?? gameObject.name,
-                $"OnHitFrame  state={CombatState}");
+                $"OnHitFrame  state={CombatState}  forwarded={live}");
+            if (!live) return;
             _executor?.NotifyAnimationEvent("HitFrame");
         }
 
         public void OnAttackEnd()
         {
+            if (_brain != null && _brain.EngineControlled) return;
+
+            bool live = CombatState == UnitCombatState.Execute
+                     || CombatState == UnitCombatState.AttackDash;
             CombatLogger.Instance?.Log(CombatLogger.CAT_ANIM,
                 Unit?.DisplayName ?? gameObject.name,
-                $"OnAttackEnd  state={CombatState}");
+                $"OnAttackEnd  state={CombatState}  forwarded={live}");
+            if (!live) return;
             _executor?.NotifyAnimationEvent("AttackEnd");
         }
 
@@ -186,8 +236,13 @@ namespace TacticalRPG.ThirdPerson
             bool isBlocking = CombatState == UnitCombatState.Recover
                            && CombatRole  == CombatRole.Defender;
 
+            // Floating damage popup so impacts read visually even with placeholder anims.
+            DamagePopup.Spawn(transform.position, finalDamage, isBlocking, finalDamage >= 25);
+
+            Vector3 hitPos = transform.position;
             CombatLogger.Instance?.Log(CombatLogger.CAT_DMG, Unit?.DisplayName ?? gameObject.name,
-                $"took {finalDamage}  blocking={isBlocking}  state={CombatState}  role={CombatRole}  hp={Unit.currentHP}");
+                $"took {finalDamage}  blocking={isBlocking}  state={CombatState}  role={CombatRole}  hp={Unit.currentHP}  " +
+                $"pos=({hitPos.x:F1},{hitPos.z:F1})");
 
             if (isBlocking)
                 _brain?.GainInitiative(1f);
@@ -223,6 +278,41 @@ namespace TacticalRPG.ThirdPerson
         public void RefreshAnimationSpeed()
         {
             _animDriver?.SetAnimationSpeed(animationSpeed);
+        }
+
+        private void OnDestroy()
+        {
+            _animancerDriver?.UnregisterUnit(this);
+            TerrainBattleManager.Instance?.Speed?.UnregisterUnit(this);
+            TerrainBattleManager.Instance?.StatusEffects?.RemoveAll(this);
+            TerrainBattleManager.Instance?.Movement?.Clear(this);
+            TerrainBattleManager.Instance?.CombatEngine?.UnregisterUnit(this);
+        }
+
+        // ── Status / CC hooks (called by BattleStatusEffectSystem) ───
+
+        public void OnStunApplied()
+        {
+            if (_brain == null || IsDead) return;
+            _brain.EnterStun();
+        }
+
+        public void OnStunExpired()
+        {
+            if (_brain == null || IsDead) return;
+            _brain.ExitStun();
+        }
+
+        public void OnAirborneStart()
+        {
+            if (_brain == null || IsDead) return;
+            _brain.EnterAirborne();
+        }
+
+        public void OnAirborneEnd()
+        {
+            if (_brain == null || IsDead) return;
+            _brain.ExitAirborne();
         }
 
         // Death

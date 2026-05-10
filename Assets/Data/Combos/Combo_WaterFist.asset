@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Combo_WaterFist
   m_EditorClassIdentifier: Assembly-CSharp::TacticalRPG.DataModels.ComboRecipeDefinition
   recipeName: Water Fist
-  description: "Water elemental punch. (C\u2192Punch)"
+  description: "Water 2-strike punch with slow chance. (C\u2192Punch)"
   actionIds:
   - handsign_c
   - punch
@@ -21,3 +21,17 @@ MonoBehaviour:
   element: 2
   powerMultiplier: 1.2
   castType: 0
+  speedCost: 15
+  speedGain: 0
+  speedScaling: 0
+  speedGate: 0
+  ccType: 2
+  ccDuration: 0.8
+  ccChance: 0.3
+  ccMagnitude: 0.2
+  targetSpeedShatter: 0
+  targetSoftCapOverride: 0
+  casterSoftCapOverride: 0
+  speedCapModifierDuration: 0
+  strikeCount: 2
+  strikeInterval: 0.22

@@ -34,6 +34,10 @@ Represents one action input — Punch, Kick, Hand Sign A, Focus, etc. The atomic
 | `basePower` | `float` | Raw power contribution before multipliers |
 | `element` | `ElementType` enum | Elemental affinity |
 | `energyCost` | `float` | Energy cost when this action is part of a fired skill (`0` for free) |
+| `speedCost` | `float` | (Phase 4) Speed required to use standalone. `0` = free. |
+| `speedGain` | `float` | (Phase 4) Speed granted on use (kinetic skills). `0` = none. |
+| `speedScaling` | `float` | (Phase 4) Damage multiplier per 100 speed. `0` = no scaling. |
+| `speedGate` | `float` | (Phase 4) Minimum current speed required to use. `0` = no gate. |
 | `selfBuffDamage` | `int` | (Elemental) Flat bonus damage per buff charge |
 | `selfBuffCharges` | `int` | (Elemental) Number of subsequent hits the buff lasts |
 | `powerBoostPercent` | `float` | (Support) Fraction added to caster's `pendingPowerBoost` |
@@ -58,6 +62,18 @@ A named combo recipe. The skill system checks the **first three actions** of a c
 | `element` | `ElementType` enum | Element of the resulting skill |
 | `powerMultiplier` | `float` | Multiplier applied to summed `basePower` of the trigger actions |
 | `castType` | `CastType` enum | Movement behavior during cast |
+| `speedCost` | `float` | (Phase 4) Speed required to fire. Recipe value supersedes summed action costs. |
+| `speedGain` | `float` | (Phase 4) Speed granted on fire. |
+| `speedScaling` | `float` | (Phase 4) Damage multiplier per 100 speed. |
+| `speedGate` | `float` | (Phase 4) Minimum caster speed required. |
+| `ccType` | `CCEffectType` enum | (Phase 10) CC effect applied on landed strike. `None` = no CC. |
+| `ccDuration` | `float` | (Phase 10) CC duration in seconds. |
+| `ccChance` | `float` (0-1) | (Phase 10) Chance the CC applies on a landed strike. |
+| `ccMagnitude` | `float` | (Phase 10) Magnitude (Slow uses this as the slow-strength factor; binary effects ignore). |
+| `targetSpeedShatter` | `float` | (Phase 12) Flat speed drained from target on landed strike. |
+| `targetSoftCapOverride` | `float` | (Phase 12) Target's soft cap is set to this value temporarily. |
+| `casterSoftCapOverride` | `float` | (Phase 12) Caster's soft cap is set to this value temporarily. |
+| `speedCapModifierDuration` | `float` | (Phase 12) Duration in seconds of any cap-modifier effects on this combo. |
 
 ### `ComboLibraryAsset`
 
@@ -90,6 +106,68 @@ See `07_PRESENTATION.md` "Animation runtime (Animancer Pro)" for the integration
 | `scriptedTravelDistance` | `float` | Distance for `ScriptedTravel`/`Dash`/`Leap` modes. |
 | `causesKnockback` / `knockbackDistance` | `bool` / `float` | Outcome knockback the resolver applies on impact. |
 
+### `StanceDefinition`
+
+**Path:** `Assets/Scripts/DataModels/StanceDefinition.cs`
+**Asset location:** `Assets/Data/Stances/` (created by `TacticalRPG → Create Default Stances (force)`)
+
+(Phase 7) A combat preset bundling decision biases — speed-spend threshold, target priority, dodge willingness, movement preference. Seven default stances ship with the game; custom stances may be added later.
+
+| Field | Type | Purpose |
+|---|---|---|
+| `id` | `StanceId` enum | One of seven canonical stances |
+| `displayName` / `description` | `string` | UI surface |
+| `behaviorBias` | `BehaviorType` enum | Aggressive / Balanced / Defensive — modulates `BattleAIBrain.ParamsFor` |
+| `speedThresholdBigCombo` | `float` | Speed value above which the brain commits a Big Combo |
+| `hpThresholdDisengage` | `float` | HP fraction below which the unit prefers disengage |
+| `speedReserveFloor` | `float` | Speed below which the unit refuses to commit a combo (Sentinel-style hoarding) |
+| `targetPriority` | `TargetPriority` enum | Overrides default nearest-enemy targeting |
+| `preferredIntent` | `MovementIntent` enum | Default movement intent for this stance |
+| `dodgeWillingnessAtLowSpeed` | `float` (0-1) | How readily the unit dodges at low speed |
+| `engagementDelaySeconds` | `float` | Sentinel-style delay before advancing from `Backline` |
+| `separationChanceModifier` | `float` | (H2H) Added to base separation chance after each exchange. Aggressive ≈ -0.2, Defensive ≈ +0.25 |
+| `initiativeBonus` | `int` | (H2H) Added to the unit's initiative when entering an exchange. Aggressive +20, Defensive -20 |
+| `pursuitAggression` | `float` | (H2H) Multiplier on chase distance willingness during Approach |
+
+### `MoveDefinition`
+
+**Path:** `Assets/Scripts/DataModels/MoveDefinition.cs`
+**Asset location:** `Assets/Resources/Moves/` (loaded automatically at engine startup via `Resources.LoadAll`; the `Resources/` folder is required so the catalog can discover them)
+**Created via:** `TacticalRPG → Combat → Create Tier 1 Move Catalog` editor menu (Tier 1 essentials); additional moves are authored as needed
+
+The atomic unit of the move-based combat engine. Every unit, every tick, is executing one of these. One frame == 50ms (20Hz tick). See `Docs/Design/COMBAT_DESIGN.md` "Combat engine — move-based, frame-data driven" and `Docs/Design/MOVES_CATALOG.md` for the canonical move list.
+
+| Field | Type | Purpose |
+|---|---|---|
+| `id` | `string` | Stable id; matches an entry in `MOVES_CATALOG.md` |
+| `animationName` | `string` | Handle the engine passes to `UnitAnimationDriver.PlayMove` (defaults to id) |
+| `category` | `MoveCategory` enum | Idle / Locomotion / LightAttack / HeavyAttack / Cast / Block / Dodge / HitReact / Death / etc. |
+| `startupFrames` / `activeFrames` / `recoveryFrames` | `int` | Frame timeline; total frames = sum, total seconds = sum × 0.05 |
+| `cancelWindowFrames` | `int` | Trailing frames of recovery during which a chained move can replace this one |
+| `damage` | `int` | Damage on full hit; 0 for non-attacks |
+| `range` | `float` | Reach in meters (cone tip at chest) |
+| `angleDegrees` | `float` | Half-angle of the hit cone |
+| `archetype` | `AttackArchetype` enum | Light / Heavy / Launch / Flurry / Sweep / Sign / GuardBreak |
+| `reactionTag` | `ReactionTag` enum | What forced reaction this attack pairs with (drives `MoveReactionTable`) |
+| `isAttack` | `bool` | True for moves whose active frames are a hitbox |
+| `speedDamageScaling` | `float` | Damage scalar with current speed |
+| `iFrameStart` / `iFrameEnd` | `int` | Within active phase, frames during which incoming hits whiff (dodges) |
+| `superArmorFrames` | `int` | Total frames during which this unit ignores incoming hits |
+| `isBlock` / `isParry` | `bool` | Defender resolution flags |
+| `incomingDamageMultiplier` | `float` | Damage multiplier for hits taken while this move is in active phase (block reduction etc.) |
+| `speedCost` | `float` | Speed debited on `StartMove` |
+| `energyCost` | `float` | Energy debited on `StartMove` |
+| `speedGate` | `float` | Brain may not pick this move below this current-speed value |
+| `cancelIntoOnHit` | `List<MoveDefinition>` | Combo continuations on confirmed hit |
+| `cancelIntoOnWhiff` | `List<MoveDefinition>` | Combo continuations on whiff |
+| `forwardSpeedMetersPerSecond` | `float` | Per-second forward translation while the move plays (negative = backstep / knockback) |
+| `lateralSpeedMetersPerSecond` | `float` | Per-second lateral translation |
+| `forwardDisplacementCurve` / `verticalDisplacementCurve` | `AnimationCurve` | Optional curves; when non-empty, override forward speed for dashes / arcs |
+| `facing` | `FacingPolicy` enum | FaceTarget / Lock / Free |
+| `spawnsEntityPrefab` *(reserved)* | `GameObject` | Reserved slot for Earth Wall / Fire Zone etc. — see `Docs/Design/COMBAT_DESIGN.md` "Perception, world entities" |
+
+Phase computation: `MoveDefinition.PhaseAtFrame(int)` returns `Startup / Active / Recovery / CancelWindow / Done` based on the timeline. The engine reads this each tick.
+
 ### `UnitDefinition`
 
 **Path:** `Assets/Scripts/DataModels/UnitDefinition.cs`
@@ -106,6 +184,17 @@ Static template for a hero or enemy.
 | `baseStats` | `StatBlock` | Base stats (see below) |
 | `proficiencies` | `ProficiencySet` | Per-element / per-action proficiency multipliers |
 | `defaultBehavior` | `BehaviorType` enum | Default AI archetype |
+| `defaultStance` | `StanceDefinition` | Default H2H stance |
+| `spottingRangeMeters` | `float` | (H2H) Detection range that triggers Spotting phase. Default 8 |
+| `engagementRangeMeters` | `float` | (H2H) Range at which Engagement begins. Default 2 |
+| `strikeRangeMeters` | `float` | (H2H) Range at which Exchange may begin. Default 1.5 |
+| `separationDistanceMeters` | `float` | (H2H) Distance the unit must reach during Separation before re-engaging. Default 3 |
+| `spottingMinTime` / `spottingMaxTime` | `float` | (H2H) Spotting delay range. Default 0.3-0.7 |
+| `decisionLagMin` / `decisionLagMax` | `float` | (H2H) Decision lag during Engagement. Default 0.2-0.5 |
+| `combatMovementSpeed` | `float` | (H2H) Speed during Engagement. Default 1.5 |
+| `traversalSpeed` | `float` | (H2H) Speed during Approach. Default 6 |
+| `disengageSpeed` | `float` | (H2H) Speed during Separation. Default 3.5 |
+| `separationMinDuration` / `separationMaxDuration` | `float` | (H2H) Separation phase duration. Default 1-1.5 |
 
 ---
 
@@ -135,6 +224,43 @@ Live state for one unit during a battle. Holds the mutable data that `UnitDefini
 | `isDead` | `bool` | Death flag |
 | `visualInstance` | `GameObject` | Reference to the spawned `TerrainBattleUnit` GameObject |
 
+> **Per-unit state that intentionally does NOT live on `UnitRuntime`:** current Speed (owned by `BattleSpeedSystem`), active CC / status effects (owned by `BattleStatusEffectSystem`), Animancer playback ownership (owned by `BattleAnimancerDriver`'s registry), current move execution (owned by `BattleCombatEngine`'s `UnitMoveExecution` registry). Adding fields here for those concerns is the "five subsystems writing to UnitRuntime" anti-pattern flagged in `02_ARCHITECTURE.md`.
+
+### `UnitMoveExecution`
+
+**Path:** `Assets/Scripts/Systems/Combat/UnitMoveExecution.cs`
+
+Runtime per-unit state owned by `BattleCombatEngine`. One instance per registered (engaged) unit. Created on register, mutated each tick, discarded on unregister. Plain C# class, not a `MonoBehaviour`.
+
+| Field | Type | Purpose |
+|---|---|---|
+| `currentMove` | `MoveDefinition` | The move currently executing |
+| `framesElapsed` | `int` | Tick count since `currentMove` started |
+| `phase` | `MovePhase` enum | Recomputed each tick from currentMove + framesElapsed |
+| `queuedNext` | `MoveDefinition` | Optional brain-pre-queued next move |
+| `airborne` | `bool` | True while in launch/airborne reaction |
+| `superArmorActive` | `bool` | True during a move's super-armor frames |
+| `remainingIFrames` | `int` | Counted down each tick during active i-frame window |
+| `lastActiveHitConfirmed` | `bool` | Set when this move's most-recent active hit landed; drives onHit-cancel chain |
+| `cancelDecisionMade` | `bool` | Per-move latch so cancel-pick runs once inside the cancel window |
+| `activeHitResolved` | `bool` | Per-move latch so multi-frame active windows don't multi-hit |
+| `lockedFacing` | `Vector3` | World-space facing snapshot for `FacingPolicy.Lock` moves |
+
+### `CombatEntity` *(planned — see `Docs/Design/COMBAT_DESIGN.md` "Perception, world entities, predictive reactions")*
+
+Non-unit world objects that participate in combat: walls, hazards, summons, projectiles, traps, markers. Lives in a registry on `TerrainBattleManager` (planned `BattleEntityRegistry` subsystem). Has HP, position, collision properties, lifetime; takes damage; despawns when HP reaches 0 or lifetime expires.
+
+Concrete subclasses (planned): `EarthWallEntity`, `IceWallEntity`, `FireZoneEntity`, `IceFloorEntity`, `ThunderPillarEntity`, `PoisonCloudEntity`, `GuardianSummonEntity`, `OrbSummonEntity`, `MarkEntity`, `TrapEntity`. Spawned by moves with `MoveDefinition.spawnsEntity` set (see `MOVES_CATALOG.md`).
+
+| Field | Type | Purpose |
+|---|---|---|
+| `currentHP` / `maxHP` | `int` | Health, despawns at 0 |
+| `owner` | `UnitRuntime` | Caster (null for environment-spawned) |
+| `category` | `EntityCategory` enum | Wall / Hazard / Summon / Projectile / Trap / Marker |
+| `blocksProjectiles` / `blocksMelee` / `blocksMovement` | `bool` | Geometric hit-resolution flags |
+| `collisionBounds` | `Bounds` | World-space collision volume |
+| `lifetimeSeconds` | `float` | Auto-despawn timer |
+
 ### `SkillSlot`
 
 A configured skill — an ordered chain of up to 5 actions (see `05_SKILL_SYSTEM.md` for the model).
@@ -158,6 +284,19 @@ The output of `SkillSystem.ResolveSkill`. Describes what's actually about to fir
 | `castType` | `CastType` enum | Movement during cast |
 | `isCombo` | `bool` | Whether the chain matched a combo recipe |
 | `sourceActions` | `List<ActionDefinition>` | The chain that produced this technique |
+| `executionTime` | `float` | (Phase 11) Final execution time in seconds. Computed from base time × (10/SPD) × (1/proficiency) × speed-band modifier. `0` = use ability default. |
+| `speedCost` | `float` | (Phase 4) Speed required to fire (recipe value or summed action costs) |
+| `speedGain` | `float` | (Phase 4) Speed granted on fire |
+| `speedScaling` | `float` | (Phase 4) Damage multiplier per 100 speed |
+| `speedGate` | `float` | (Phase 4) Minimum caster speed required |
+| `ccType` | `CCEffectType` enum | (Phase 10) CC applied on landed strike |
+| `ccDuration` | `float` | (Phase 10) CC duration |
+| `ccChance` | `float` | (Phase 10) Application chance (0-1) |
+| `ccMagnitude` | `float` | (Phase 10) Effect magnitude (e.g. slow strength) |
+| `targetSpeedShatter` | `float` | (Phase 12) Flat speed drained from target on landed strike |
+| `targetSoftCapOverride` | `float` | (Phase 12) Temporary soft-cap drop on target (Destabilize) |
+| `casterSoftCapOverride` | `float` | (Phase 12) Temporary soft-cap raise on caster (Flow State) |
+| `speedCapModifierDuration` | `float` | (Phase 12) Duration of cap modifiers in seconds |
 
 ### `ActiveBuff`
 
@@ -192,6 +331,7 @@ Used in both `UnitDefinition` (base values) and `UnitRuntime` (current values).
 | `attack` | `int` | Damage modifier |
 | `defense` | `int` | Damage reduction modifier; also drives block chance |
 | `moveSpeed` | `float` | Locomotion speed; also drives dodge chance |
+| `perception` *(planned)* | `int` | Frames-of-warning the brain reads for opponent intent. Higher = sees threats earlier, can prepare via `PickPreparation`. Default ~8. See `Docs/Design/COMBAT_DESIGN.md` "Perception, world entities, and predictive reactions". |
 
 ### `ProficiencySet`
 
@@ -270,11 +410,131 @@ Movement mode for an `AttackProfile`. Profile-driven; set per skill.
 
 The per-unit AI state machine. See `04_BATTLE_SYSTEM.md` for the transition rules.
 
-`Backline`, `Engage`, `Decide`, `Melee`, `CastMobile`, `CastRooted`, `Execute`, `Recover`, `Dodging`, `Dead`.
+`Backline`, `Engage`, `Decide`, `Melee`, `CastMobile`, `CastRooted`, `AttackDash`, `Execute`, `Recover`, `Stagger`, `Dodging`, `Stunned`, `Repositioning`, `Dead`.
 
 ### `BehaviorType`
 
 `Aggressive`, `Defensive`, `Balanced`. Future: `Skirmisher`, `Support`, `Assassin`.
+
+### `SpeedBand`
+
+(Phase 3) Discretized current-speed buckets used for visual modulation, AI thresholds, and execution timing.
+
+| Value | Range |
+|---|---|
+| `Sluggish` | 0 – 20 |
+| `Engaged` | 20 – 50 |
+| `Sharp` | 50 – 70 |
+| `Primed` | 70 – 100 |
+
+### `MovementIntent`
+
+(Phase 5) `Hold`, `Close`, `Circle`, `Disengage`, `Dash`. Per-intent speed-gain rates owned by `BattleMovementSystem`. The brain pushes intent on every state transition; `BattleSpeedSystem.ComputeDelta` reads the rate when the unit is moving.
+
+### `StanceId`
+
+(Phase 7) `Onslaught`, `Tempest`, `Stalwart`, `Tactician`, `Wraith`, `Sentinel`, `Conduit`. Each maps to a `StanceDefinition` asset under `Assets/Data/Stances/`, generated by `TacticalRPG → Create Default Stances (force)`.
+
+### `TargetPriority`
+
+(Phase 7) `Nearest`, `LowestHP`, `BacklineFirst`, `Furthest`, `AttackerOfAlly`, `Marked`. Set by stance; consumed by `BattleTargetFinder.GetTarget`. `Marked` is reserved (no marking system yet).
+
+### `ExchangePhase`
+
+(Phase 8) `None`, `Initiation`, `WindUp`, `StrikeSequence`, `Resolution`, `Beat`, `ReEvaluation`. Tracked per pair on `BattleExchangeCoordinator.ExchangeRecord`; advanced by `AdvancePhase`.
+
+### `DefenderResponse`
+
+(Phase 8) `Eat`, `Dodge`, `Block`, `Counter`. Resolver passes the per-strike response to `BattleExchangeCoordinator.OnStrikeResolved` for speed economy. `Counter` is reserved (defender → attacker role flip is design-tuning work).
+
+### `CCEffectType`
+
+(Phase 10) `None`, `Stun`, `Slow`, `Interrupt`, `Knockdown`, `Knockback`. The current `BattleStatusEffectSystem` end-to-end-implements `Stun` and `Slow`; `Knockback` is owned by the existing `BattleKnockbackSystem`; `Interrupt` and `Knockdown` are reserved enum values for later phases (Knockdown in particular needs ragdoll physics).
+
+### `EntityCategory` *(planned)*
+
+Tags non-unit world objects (`CombatEntity` instances). Drives hit-resolution and perception filtering. See `Docs/Design/COMBAT_DESIGN.md` "Perception, world entities, predictive reactions".
+
+| Value | Examples |
+|---|---|
+| `Wall` | Earth Wall, Ice Wall, Stone Pillar — block projectiles / melee |
+| `Hazard` | Fire Zone, Ice Floor, Thunder Pillar, Poison Cloud — area effects, tick damage / debuff |
+| `Summon` | Guardian, orbs — ally-aligned units that can body-block and attack |
+| `Projectile` | Triple Sign fireball, Orb Ray — in-flight ranged attacks (becomes an entity rather than a one-shot resolve) |
+| `Trap` | Mines, runes — proximity-triggers on enemy entry |
+| `Marker` | JJK-style flagged target — no collision, just data for ally moves to consume |
+
+### `MoveCategory`
+
+Top-level kind a `MoveDefinition` belongs to; matches the section headers in `MOVES_CATALOG.md`. Used by stance brains to filter the move pool.
+
+`Idle`, `Locomotion`, `LightAttack`, `HeavyAttack`, `Cast`, `BigCast`, `EntitySpawn`, `Block`, `Dodge`, `Parry`, `HitReact`, `Knockdown`, `Stun`, `Finisher`, `MobilityAbility`, `Death`.
+
+### `MovePhase`
+
+Frame-window phase of a currently-executing move; computed by `MoveDefinition.PhaseAtFrame`.
+
+`Startup` (committed, no hit yet) → `Active` (hitbox / i-frames / armor live) → `Recovery` (no hit, no defense) → `CancelWindow` (last N recovery frames; chained move accepted) → `Done`.
+
+### `ReactionTag`
+
+What forced reaction an attack invites in the defender. Drives `MoveReactionTable.PickForcedReaction`.
+
+`None`, `LightHit`, `Heavy`, `Sweep`, `Launch`, `BigSign`, `Knockdown`, `GuardBreak`.
+
+### `FacingPolicy`
+
+How a move handles a unit's facing while playing.
+
+`FaceTarget` (continuously rotate toward target — also drives target-aware locomotion direction in the engine), `Lock` (snapshot facing at move start, hold for the duration), `Free` (use unit's current rotation).
+
+### `HitResolution`
+
+Engine-internal categorization of one tick's hit-check outcome.
+
+`OutOfRange`, `Whiff` (i-frames / parry / super-armor), `Blocked`, `FullHit`, `Trade` (both attacks active simultaneously).
+
+### `AttackArchetype`
+
+`Light`, `Heavy`, `Launch`, `Flurry`, `Sweep`, `Sign`, `GuardBreak`. Used by skill resolution and the brain's combo-archetype hint. Distinct from `ReactionTag` — archetype drives damage / scaling rules; tag drives the paired-reaction lookup.
+
+### `H2HPhase`
+
+Phase a unit occupies in the hand-to-hand cycle. Owned by `BattleH2HPhaseSystem`; transitions go through `TransitionPhase`. See `Docs/Design/HAND_TO_HAND_COMBAT.md` §6.
+
+| Value | Meaning |
+|---|---|
+| `NotEngaged` | Out of combat, idle / patrol. Also where a dead unit is parked (with `H2HUnit.IsDead` true). |
+| `Spotting` | Hostile detected; brief alert delay before pursuit |
+| `Approaching` | Closing the gap at traversal speed |
+| `Engaged` | In engagement range, circling at combat speed |
+| `Exchange` | Active strike / defense — `BattleH2HOrchestrator` owns both units |
+| `Separating` | Breaking off after exchange, creating distance |
+
+### `H2HUnit.Combo` and `H2HUnit.ComboHit`
+
+Per-unit attack data consumed by `BattleH2HOrchestrator`. A combo is a list of hits sharing one pre-position adjust + per-hit impact timing. See `Docs/Design/HAND_TO_HAND_COMBAT.md` §12 (multi-hit combos shipped row).
+
+`Combo`:
+
+| Field | Type | Purpose |
+|---|---|---|
+| `name` | `string` | Display name (BasicJab, JabHookUppercut, HeavyKick by default) |
+| `hits` | `List<ComboHit>` | Ordered list of strikes |
+| `minSpeed` / `minEnergy` | `float` | Resource gates — `H2HUnit.PickCombo` skips combos that fail these |
+| `desiredImpactDistance` | `float` | Distance from defender at the FIRST impact frame; the orchestrator pre-positions the attacker to this distance |
+| `positionAdjustDuration` | `float` | Seconds spent smoothstepping into impact distance before first strike |
+| `interHitGap` | `float` | Time-gap (seconds) between consecutive hit impact frames |
+
+`ComboHit`:
+
+| Field | Type | Purpose |
+|---|---|---|
+| `attackId` | `string` | Library clip id played for this hit |
+| `archetype` | `AttackArchetype` enum | Light / Heavy / etc. — drives defender response bias |
+| `impactNormalized` | `float` (0-1) | Where in the clip the impact lands |
+| `damage` | `int` | Damage on a clean (non-blocked, non-dodged) hit |
+| `speedCost` | `float` | Speed debited from the attacker on commit of this hit |
 
 ---
 
@@ -301,13 +561,27 @@ For each hero:
 **During battle (runtime mutation):**
 
 ```
-TerrainBattleUnit state machine ticks
-  Decide state → SkillSystem.PickBestSkill(unit)
-              → SkillSystem.ResolveSkill(slot, caster) → ResolvedTechnique
-  Execute state → BattleCombatResolver fires the technique
-                → modifies target's UnitRuntime (HP, buffs)
-                → modifies caster's UnitRuntime (energy spent)
-ScriptableObjects are READ ONLY this entire time
+TerrainBattleUnit legacy state machine handles Backline → Engage → Decide
+  At first Decide → handoff to BattleCombatEngine (legacy state machine no-ops)
+
+BattleCombatEngine ticks at 20Hz (50ms):
+  For each engaged unit's UnitMoveExecution:
+    Apply move's per-tick movement (target-aware basis)
+    UpdatePhase(currentMove, framesElapsed)
+    If Active && IsAttack: cone-check target → resolve hit
+      → MoveReactionTable.PickForcedReaction → force defender's move
+      → modifies target's UnitRuntime (HP)
+    If imminent attacker in reactionLookahead window: ask brain.PickReaction
+    If phase == CancelWindow: ask brain.PickCancel (once per move)
+    Increment frame; if Done: ask brain.PickPreparation → fallback PickNeutral
+
+Subsystems still active during engine control:
+  BattleSpeedSystem ticks speed gain/drain from MovementIntent
+  BattleStatusEffectSystem ticks active CC durations
+  BattleAnimancerDriver / UnitAnimationDriver play move-name → clip lookup
+  BattleEngagementManager / BattleMeleeTokenSystem still gate frontline slots
+
+ScriptableObjects (MoveDefinition, ActionDefinition, etc.) are READ ONLY this entire time
 ```
 
 **Battle end (cleanup):**

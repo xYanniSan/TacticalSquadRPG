@@ -20,5 +20,6 @@ MonoBehaviour:
     maxHP: 100
     attack: 10
     defense: 5
-    moveSpeed: 3
+    moveSpeed: 10
   defaultBehavior: 0
+  defaultStance: {fileID: 11400000, guid: b6fd608755cd06a45b0e716e89fed50a, type: 2}

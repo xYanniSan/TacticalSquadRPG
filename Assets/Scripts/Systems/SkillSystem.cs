@@ -35,7 +35,27 @@ namespace TacticalRPG.Systems
                                     ? TargetPattern.Self : TargetPattern.Single,
                     sourceActions = actions,
                     isCombo       = true,
-                    castType      = combo.castType
+                    castType      = combo.castType,
+                    // Phase 4 — recipe-defined speed properties win for combos
+                    speedCost     = combo.speedCost,
+                    speedGain     = combo.speedGain,
+                    speedScaling  = combo.speedScaling,
+                    speedGate     = combo.speedGate,
+                    // Phase 10 — recipe-defined CC properties
+                    ccType        = combo.ccType,
+                    ccDuration    = combo.ccDuration,
+                    ccChance      = combo.ccChance,
+                    ccMagnitude   = combo.ccMagnitude,
+                    // Phase 12 — tactical denial
+                    targetSpeedShatter       = combo.targetSpeedShatter,
+                    targetSoftCapOverride    = combo.targetSoftCapOverride,
+                    casterSoftCapOverride    = combo.casterSoftCapOverride,
+                    speedCapModifierDuration = combo.speedCapModifierDuration,
+                    // Multi-strike cadence
+                    strikeCount    = combo.strikeCount,
+                    strikeInterval = combo.strikeInterval,
+                    // Paired-reaction archetype
+                    attackArchetype = combo.attackArchetype
                 };
             }
 
@@ -56,6 +76,18 @@ namespace TacticalRPG.Systems
             if (hasSupport)  castType = CastType.Rooted;
             else if (hasPhysical) castType = CastType.Melee;
 
+            // For unmatched chains, sum action-level speed properties so a
+            // single-action skill (e.g. standalone Kick) still has a cost.
+            float sumSpeedCost = 0f, sumSpeedGain = 0f;
+            float maxSpeedScaling = 0f, maxSpeedGate = 0f;
+            foreach (var a in actions)
+            {
+                sumSpeedCost     += a.speedCost;
+                sumSpeedGain     += a.speedGain;
+                if (a.speedScaling > maxSpeedScaling) maxSpeedScaling = a.speedScaling;
+                if (a.speedGate    > maxSpeedGate)    maxSpeedGate    = a.speedGate;
+            }
+
             return new ResolvedTechnique
             {
                 techniqueName = "Individual",
@@ -65,7 +97,11 @@ namespace TacticalRPG.Systems
                 targetPattern = TargetPattern.Single,
                 sourceActions = actions,
                 isCombo       = false,
-                castType      = castType
+                castType      = castType,
+                speedCost     = sumSpeedCost,
+                speedGain     = sumSpeedGain,
+                speedScaling  = maxSpeedScaling,
+                speedGate     = maxSpeedGate
             };
         }
 

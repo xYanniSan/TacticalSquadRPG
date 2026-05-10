@@ -107,6 +107,29 @@ After base power is computed, the caster's `ProficiencySet` multipliers apply:
 
 Proficiencies default to 1.0 (neutral). Higher values mean the hero is naturally better with that element/category.
 
+### Speed properties (Phase 4)
+
+`ResolveSkill` populates the `ResolvedTechnique` with the recipe's `speedCost` / `speedGain` / `speedScaling` / `speedGate`. When no combo matches, costs are summed from each action's own speed fields.
+
+- **`speedCost`** is paid in `BattleCombatResolver.ResolveSkillAttack` before damage. The brain pre-checks affordability in `PickBestSkill` so unaffordable skills aren't selected.
+- **`speedGate`** is enforced in the same pre-check; below-threshold skills fall through to a basic action.
+- **`speedScaling`** is applied as a damage multiplier in the resolver: `dmg × (1 + (currentSpeed / 200) × scaling)`. Zero (default) means unchanged.
+- **`speedGain`** credits the caster's pool on cast. Used by kinetic skills like `Wind Burst` (Phase 12).
+
+### Execution timing (Phase 11)
+
+`UnitBrainAI.LaunchExecuteAbility` populates `ResolvedTechnique.executionTime` using `CombatTimingFormula.ComputeExecutionTime`:
+
+```
+final_time = base_time × (10 / SPD) × (1 / proficiency) × (1 / speed_band_modifier)
+```
+
+Where `speed_band_modifier` is `0.85 / 1.0 / 1.10 / 1.20` for `Sluggish / Engaged / Sharp / Primed`. Slow CC stretches the result further (`/ slowFactor`). `AnimancerMeleeAbility` reads `executionTime` and uses it as its hold duration so master heroes' attacks both compute and *visually* play out faster than novices'. Reference base is `2.0s`.
+
+### CC application (Phase 10)
+
+If a recipe has `ccDuration > 0` and a successful chance roll, `BattleCombatResolver.ResolveSkillAttack` calls `BattleStatusEffectSystem.Apply(defender, ccType, ccDuration, ccMagnitude)` after damage lands. Stun routes the defender to the `Stunned` state; Slow factors into movement speed and execution timing for affected targets. Hardcoded recipes default to `CCEffectType.None` until balanced.
+
 ### `pendingPowerBoost`
 
 When a Support action (Focus) fires standalone, it stores a percentage on `UnitRuntime.pendingPowerBoost`. The next technique the unit fires consumes this boost as a multiplier on its power, then clears the field.

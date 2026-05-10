@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Combo_EarthFist
   m_EditorClassIdentifier: Assembly-CSharp::TacticalRPG.DataModels.ComboRecipeDefinition
   recipeName: Earth Fist
-  description: "Earth elemental punch. (A\u2192Punch)"
+  description: "Earth 2-strike punch combo. (A\u2192Punch)"
   actionIds:
   - handsign_a
   - punch
@@ -21,3 +21,17 @@ MonoBehaviour:
   element: 3
   powerMultiplier: 1.2
   castType: 0
+  speedCost: 15
+  speedGain: 0
+  speedScaling: 0
+  speedGate: 0
+  ccType: 0
+  ccDuration: 0
+  ccChance: 0
+  ccMagnitude: 1
+  targetSpeedShatter: 0
+  targetSoftCapOverride: 0
+  casterSoftCapOverride: 0
+  speedCapModifierDuration: 0
+  strikeCount: 2
+  strikeInterval: 0.22

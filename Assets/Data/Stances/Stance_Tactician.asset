@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 968e59f6c57a9b34cb5f150479cdc979, type: 3}
+  m_Name: Stance_Tactician
+  m_EditorClassIdentifier: Assembly-CSharp::TacticalRPG.DataModels.StanceDefinition
+  id: 3
+  displayName: Tactician
+  description: Smart finisher; picks fights they can win. Reads situation adaptively.
+  behaviorBias: 2
+  speedThresholdBigCombo: 65
+  hpThresholdDisengage: 0.5
+  speedReserveFloor: 10
+  targetPriority: 1
+  preferredIntent: 2
+  dodgeWillingnessAtLowSpeed: 0.45
+  engagementDelaySeconds: 0

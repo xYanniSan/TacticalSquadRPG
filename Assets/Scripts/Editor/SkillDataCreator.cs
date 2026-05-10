@@ -43,14 +43,21 @@ namespace TacticalRPG.Editor
                 TechniqueType.Summon, ElementType.None, 3.0f, CastType.Rooted));
 
             recipeAssets.Add(MakeRecipe("Combo_ElementalFist",
-                "Elemental Fist", "Massive all-element punch. (A→B→C→Punch)",
+                "Elemental Fist", "Massive all-element punch — 4-strike Earth flurry. (A→B→C→Punch)",
                 new[] { "handsign_a","handsign_b","handsign_c","punch" },
-                TechniqueType.Attack, ElementType.Earth, 2.5f, CastType.Melee));
+                TechniqueType.Attack, ElementType.Earth, 2.5f, CastType.Melee,
+                speedCost: 35f, speedScaling: 0.5f, speedGate: 50f,
+                ccType: CCEffectType.Slow, ccDuration: 1.5f, ccChance: 0.5f, ccMagnitude: 0.3f,
+                targetSpeedShatter: 15f,
+                strikeCount: 4, strikeInterval: 0.20f));
 
             recipeAssets.Add(MakeRecipe("Combo_ElementalStorm",
-                "Elemental Storm", "Massive all-element kick. (A→B→C→Kick)",
+                "Elemental Storm", "Massive Lightning kick combo — 4-strike, can stun. (A→B→C→Kick)",
                 new[] { "handsign_a","handsign_b","handsign_c","kick" },
-                TechniqueType.Attack, ElementType.Lightning, 2.5f, CastType.Melee));
+                TechniqueType.Attack, ElementType.Lightning, 2.5f, CastType.Melee,
+                speedCost: 35f, speedScaling: 0.4f, speedGate: 50f,
+                ccType: CCEffectType.Stun, ccDuration: 0.4f, ccChance: 0.6f,
+                strikeCount: 4, strikeInterval: 0.18f));
 
             // ── 3-action combos ────────────────────────────────────
             recipeAssets.Add(MakeRecipe("Combo_TripleSign",
@@ -58,68 +65,100 @@ namespace TacticalRPG.Editor
                 new[] { "handsign_a","handsign_b","handsign_c" },
                 TechniqueType.Attack, ElementType.Fire, 2.0f, CastType.Rooted));
 
-            // ── 2-action elemental combos ──────────────────────────
+            // ── 2-action elemental combos (mobile casts) ───────────
             recipeAssets.Add(MakeRecipe("Combo_Geomagnetic",
-                "Geomagnetic", "Earth+Lightning. Mobile. (A→B)",
+                "Geomagnetic", "Earth+Lightning 2-strike mobile. (A→B)",
                 new[] { "handsign_a","handsign_b" },
-                TechniqueType.Attack, ElementType.Earth, 1.4f, CastType.Mobile));
+                TechniqueType.Attack, ElementType.Earth, 1.4f, CastType.Mobile,
+                speedCost: 10f, strikeCount: 2, strikeInterval: 0.22f));
 
             recipeAssets.Add(MakeRecipe("Combo_Thunderstorm",
-                "Thunderstorm", "Lightning+Water. Mobile. (B→C)",
+                "Thunderstorm", "Lightning+Water 2-strike with stun chance. (B→C)",
                 new[] { "handsign_b","handsign_c" },
-                TechniqueType.Attack, ElementType.Lightning, 1.4f, CastType.Mobile));
+                TechniqueType.Attack, ElementType.Lightning, 1.4f, CastType.Mobile,
+                speedCost: 10f,
+                ccType: CCEffectType.Stun, ccDuration: 0.3f, ccChance: 0.25f,
+                strikeCount: 2, strikeInterval: 0.20f));
 
             recipeAssets.Add(MakeRecipe("Combo_Mudslide",
-                "Mudslide", "Earth+Water. Mobile. (A→C)",
+                "Mudslide", "Earth+Water 2-strike, applies Slow. (A→C)",
                 new[] { "handsign_a","handsign_c" },
-                TechniqueType.Attack, ElementType.Water, 1.4f, CastType.Mobile));
+                TechniqueType.Attack, ElementType.Water, 1.4f, CastType.Mobile,
+                speedCost: 10f,
+                ccType: CCEffectType.Slow, ccDuration: 1.0f, ccChance: 0.4f, ccMagnitude: 0.25f,
+                strikeCount: 2, strikeInterval: 0.22f));
 
             // ── 2-action physical combos ───────────────────────────
             recipeAssets.Add(MakeRecipe("Combo_ComboStrike",
-                "Combo Strike", "Physical combo. (Punch→Kick)",
+                "Combo Strike", "Physical 2-strike. (Punch→Kick)",
                 new[] { "punch","kick" },
-                TechniqueType.Attack, ElementType.None, 1.3f, CastType.Melee));
+                TechniqueType.Attack, ElementType.None, 1.3f, CastType.Melee,
+                speedCost: 10f, strikeCount: 2, strikeInterval: 0.22f));
 
             recipeAssets.Add(MakeRecipe("Combo_PowerStrike",
-                "Power Strike", "Focus-enhanced punch. ×1.5 (Focus→Punch)",
+                "Power Strike", "Focus-enhanced single heavy hit, scales with speed. (Focus→Punch)",
                 new[] { "focus","punch" },
-                TechniqueType.Attack, ElementType.None, 1.5f, CastType.Melee));
+                TechniqueType.Attack, ElementType.None, 1.5f, CastType.Melee,
+                speedCost: 15f, speedScaling: 0.5f,
+                ccType: CCEffectType.Slow, ccDuration: 1.0f, ccChance: 0.4f, ccMagnitude: 0.25f,
+                strikeCount: 1));
 
             recipeAssets.Add(MakeRecipe("Combo_CrescentKick",
-                "Crescent Kick", "Focus-enhanced kick. ×2.0 (Focus→Kick)",
+                "Crescent Kick", "Launch finisher: launch + aerial flurry + cinematic knockback. (Focus→Kick)",
                 new[] { "focus","kick" },
-                TechniqueType.Attack, ElementType.None, 2.0f, CastType.Melee));
+                TechniqueType.LaunchCombo, ElementType.None, 2.0f, CastType.Melee,
+                speedCost: 25f, speedScaling: 0.7f, speedGate: 30f,
+                ccType: CCEffectType.Stun, ccDuration: 0.5f, ccChance: 0.3f,
+                targetSpeedShatter: 25f,
+                strikeCount: 4, strikeInterval: 0.18f,
+                attackArchetype: AttackArchetype.Launch));
 
-            // ── Sign + Physical combos ─────────────────────────────
+            // ── Sign + Physical 2-strike combos ────────────────────
             recipeAssets.Add(MakeRecipe("Combo_EarthFist",
-                "Earth Fist", "Earth elemental punch. (A→Punch)",
+                "Earth Fist", "Earth 2-strike punch combo. (A→Punch)",
                 new[] { "handsign_a","punch" },
-                TechniqueType.Attack, ElementType.Earth, 1.2f, CastType.Melee));
+                TechniqueType.Attack, ElementType.Earth, 1.2f, CastType.Melee,
+                speedCost: 15f, strikeCount: 2, strikeInterval: 0.22f));
 
             recipeAssets.Add(MakeRecipe("Combo_ThunderFist",
-                "Thunder Fist", "Lightning elemental punch. (B→Punch)",
+                "Thunder Fist", "Lightning 2-strike punch with stun chance. (B→Punch)",
                 new[] { "handsign_b","punch" },
-                TechniqueType.Attack, ElementType.Lightning, 1.2f, CastType.Melee));
+                TechniqueType.Attack, ElementType.Lightning, 1.2f, CastType.Melee,
+                speedCost: 15f,
+                ccType: CCEffectType.Stun, ccDuration: 0.3f, ccChance: 0.25f,
+                strikeCount: 2, strikeInterval: 0.20f));
 
             recipeAssets.Add(MakeRecipe("Combo_WaterFist",
-                "Water Fist", "Water elemental punch. (C→Punch)",
+                "Water Fist", "Water 2-strike punch with slow chance. (C→Punch)",
                 new[] { "handsign_c","punch" },
-                TechniqueType.Attack, ElementType.Water, 1.2f, CastType.Melee));
+                TechniqueType.Attack, ElementType.Water, 1.2f, CastType.Melee,
+                speedCost: 15f,
+                ccType: CCEffectType.Slow, ccDuration: 0.8f, ccChance: 0.30f, ccMagnitude: 0.20f,
+                strikeCount: 2, strikeInterval: 0.22f));
 
             recipeAssets.Add(MakeRecipe("Combo_TremorKick",
-                "Tremor Kick", "Earth elemental kick. (A→Kick)",
+                "Tremor Kick", "Earth 2-strike kick with slow. (A→Kick)",
                 new[] { "handsign_a","kick" },
-                TechniqueType.Attack, ElementType.Earth, 1.3f, CastType.Melee));
+                TechniqueType.Attack, ElementType.Earth, 1.3f, CastType.Melee,
+                speedCost: 15f,
+                ccType: CCEffectType.Slow, ccDuration: 1.0f, ccChance: 0.30f, ccMagnitude: 0.25f,
+                strikeCount: 2, strikeInterval: 0.22f));
 
             recipeAssets.Add(MakeRecipe("Combo_ThunderSweep",
-                "Thunder Sweep", "Lightning elemental kick. (B→Kick)",
+                "Thunder Sweep", "Lightning 2-strike kick with stun chance. (B→Kick)",
                 new[] { "handsign_b","kick" },
-                TechniqueType.Attack, ElementType.Lightning, 1.3f, CastType.Melee));
+                TechniqueType.Attack, ElementType.Lightning, 1.3f, CastType.Melee,
+                speedCost: 15f,
+                ccType: CCEffectType.Stun, ccDuration: 0.35f, ccChance: 0.30f,
+                strikeCount: 2, strikeInterval: 0.20f));
 
             recipeAssets.Add(MakeRecipe("Combo_TidalSweep",
-                "Tidal Sweep", "Water elemental kick. (C→Kick)",
+                "Tidal Sweep", "Water 2-strike kick with strong slow. (C→Kick)",
                 new[] { "handsign_c","kick" },
-                TechniqueType.Attack, ElementType.Water, 1.3f, CastType.Melee));
+                TechniqueType.Attack, ElementType.Water, 1.3f, CastType.Melee,
+                speedCost: 15f,
+                ccType: CCEffectType.Slow, ccDuration: 1.2f, ccChance: 0.40f, ccMagnitude: 0.30f,
+                strikeCount: 2, strikeInterval: 0.22f));
 
             // ── Create library asset ───────────────────────────────
             string libPath = "Assets/Data/Combos/ComboLibrary.asset";
@@ -138,7 +177,12 @@ namespace TacticalRPG.Editor
         private static ComboRecipeDefinition MakeRecipe(
             string fileName, string recipeName, string description,
             string[] actionIds, TechniqueType techType, ElementType element,
-            float powerMult, CastType castType)
+            float powerMult, CastType castType,
+            float speedCost = 0f, float speedScaling = 0f, float speedGate = 0f,
+            CCEffectType ccType = CCEffectType.None, float ccDuration = 0f, float ccChance = 0f, float ccMagnitude = 1f,
+            float targetSpeedShatter = 0f,
+            int strikeCount = 1, float strikeInterval = 0.25f,
+            AttackArchetype attackArchetype = AttackArchetype.Light)
         {
             string path = $"Assets/Data/Combos/{fileName}.asset";
             var existing = AssetDatabase.LoadAssetAtPath<ComboRecipeDefinition>(path);
@@ -152,6 +196,17 @@ namespace TacticalRPG.Editor
             def.element         = element;
             def.powerMultiplier = powerMult;
             def.castType        = castType;
+            def.speedCost       = speedCost;
+            def.speedScaling    = speedScaling;
+            def.speedGate       = speedGate;
+            def.ccType          = ccType;
+            def.ccDuration      = ccDuration;
+            def.ccChance        = ccChance;
+            def.ccMagnitude     = ccMagnitude;
+            def.targetSpeedShatter = targetSpeedShatter;
+            def.strikeCount     = Mathf.Max(1, strikeCount);
+            def.strikeInterval  = Mathf.Max(0.05f, strikeInterval);
+            def.attackArchetype = attackArchetype;
 
             AssetDatabase.CreateAsset(def, path);
             return def;

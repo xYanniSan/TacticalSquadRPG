@@ -78,12 +78,12 @@ Animations are grouped by usage. Each category has different rules.
 
 ### Locomotion
 
-Examples: idle, run, combat idle, turn in place.
+Examples: idle, walk, run, sprint, strafe, combat idle, turn in place.
 
-- Loopable
-- Code-driven movement (no root motion)
-- Used outside committed attack states
-- Transitions handled by code via `Animator.CrossFade`
+- Loopable. Each loop is selected from a `(engaged-state × speed-band × direction)` matrix at runtime — see "Locomotion driver" below.
+- **Root motion**: Kubold loops carry per-clip root displacement (e.g. `WalkFwdLoop` ≈ 1.57 m/s, `KB_WalkFwd1` ≈ 0.60 m/s). The `CharacterController` drives the unit's position; the loops are picked so their per-clip speed roughly matches the controller's actual speed, avoiding foot-slide. The driver does **not** apply root motion to the transform — it only uses the clips' baked rates as a clip-selection signal.
+- Used outside committed attack states. Suppressed for the duration of one-shots (strikes, hit-reacts, dodges) via `KuboldLocomotionDriver.SuppressFor(seconds)`.
+- Transitions are Animancer cross-fades on the next `Play(transition)` call; no explicit Start/Stop blending today (Start/Stop clips are wired in the library and available for a future polish pass).
 
 ### Basic combat actions
 
@@ -216,23 +216,114 @@ Unity's built-in Animation Events on imported Mixamo clips continue to fire when
 
 This preserves the rule: events *notify*, combat decides. If a clip is swapped and the event name stays the same, combat is unaffected.
 
-### Proof-of-concept migration: Earth Fist
+### Centralized driver: `BattleAnimancerDriver`
 
-The first skill to move onto Animancer is **Earth Fist** (`Hand Sign A → Punch`, 1.2× Melee). Chosen because:
+Animancer playback is owned by a single subsystem on the `TerrainBattleManager` GameObject — `BattleAnimancerDriver` — not by per-unit MonoBehaviours. Per-unit `AnimancerComponent`s register with the driver during `TerrainBattleUnit.Initialize`; the driver holds a `Dictionary<TerrainBattleUnit, AnimancerComponent>` and is the only entry point for attack playback and per-unit hit-stop.
 
-1. It uses an existing Mixamo punch clip with one impact frame — minimum animation surface.
-2. `CastType.Melee` runs the unit through the standard `Engage → Decide → Melee → Execute → Recover` path with no special-cased state code.
-3. It exercises the full pipeline (combo match → resolved technique → profile → transition → impact event → resolver → hit-stop → knockback) without pulling in summons, orbs, or rooted charge windows.
+Why centralized:
 
-Steps:
+- **One place for visual modulation.** Speed-band slowdowns, CC-specific freezes, attacker-only hit-stop, status tints — all of these need to read combat state and apply per-unit playback effects. Centralizing avoids re-implementing the same plumbing on every per-unit driver and keeps the rules consistent across heroes, enemies, and summons.
+- **Combat-aware fan-out.** The driver subscribes the named impact event for each playback and can layer additional effects (current: per-unit Animancer freeze on the attacker; future: defender freeze, camera punch, CC visuals) without each ability re-implementing the policy.
+- **Symmetry with the rest of the architecture.** Subsystems own concerns; combat behavior is added by adding a subsystem. Per-unit drivers inverted that pattern.
 
-1. Create `AttackProfile_EarthFist.asset` and `Transition_EarthPunch.asset`. Author the impact frame as a named event `Impact` on the transition.
-2. Add a `BattleAnimationDriver` presentation MonoBehaviour as a child of `TerrainBattleUnit` that owns the `AnimancerComponent` reference and exposes `PlayAttack(AttackProfile, Action onImpact, Action onEnd)`. Route the `Execute` state through it. Combat decisions stay in `TerrainBattleUnit` and the resolver — `BattleAnimationDriver` is presentation-only.
-3. Leave every other skill on the existing Animator Controller path. `BattleAnimationDriver` falls back to legacy playback when `profile.transition == null`, so the migration is per-skill rather than big-bang.
-4. Verify against `CombatLogger`'s `ANIM` and `DMG` categories: the impact event should land at the same logical moment as before, hit-stop and knockback should fire on the resolver call, and `Recover` should re-enter `Decide` at the existing cadence.
-5. Once Earth Fist is stable across player and enemy units in `TerrainBattleScene`, schedule the rest of the catalog one cast-type cluster at a time — Melee combos next, then Mobile, then Rooted, with Summoning and Orb Strike last because they touch the presentation surface most.
+Public surface (deliberately small):
+
+```csharp
+public bool IsAvailable(TerrainBattleUnit unit);
+public void RegisterUnit(TerrainBattleUnit unit, AnimancerComponent animancer);
+public void UnregisterUnit(TerrainBattleUnit unit);
+public bool PlayAttack(TerrainBattleUnit unit, AttackProfile profile);
+public void ApplyHitStop(TerrainBattleUnit unit, float duration);
+public void ApplyHitStop(TerrainBattleUnit attacker, TerrainBattleUnit defender, float duration);
+```
+
+`PlayAttack` returns `false` when the unit isn't registered or the profile lacks a transition, so abilities can fall back to the legacy Animator Controller path without branching on driver state up-front.
+
+Per-instance event registration is internal to the driver — it routes the profile's named impact event to `unit.OnHitFrame()` and the state's `OnEnd` to `unit.OnAttackEnd()`. Abilities still see the same `"HitFrame"` / `"AttackEnd"` vocabulary `UnitAnimationEventRelay` produces, so playback path is invisible to the rest of combat.
+
+### Per-unit hit-stop
+
+`BattleAnimancerDriver.ApplyHitStop(unit, duration)` zeroes `AnimancerComponent.Graph.Speed` for `duration` real seconds and restores it. This is independent of `Time.timeScale` and independent of `BattleHitStopSystem`'s global freeze — the two compose, and per-unit pause can apply to a single unit without freezing the world. Use cases:
+
+- Asymmetric attacker-only freeze on commit (currently on by default for Animancer-played skills, ~50ms).
+- CC-specific visual locks (stun, root) that shouldn't pause the rest of the battle.
+- Speed-band modulation when `BattleSpeedSystem` lands — slow units' Animancer can be down-scaled here without touching `Time.timeScale`.
+
+The global tier-based `BattleHitStopSystem` (Light/Medium/Heavy via `Time.timeScale`) still owns world-wide freeze on impact. Per-unit pause is additive.
+
+### Proof of concept: Earth Fist (shipped)
+
+The first skill on the centralized driver is **Earth Fist** (`Hand Sign A → Punch`, 1.2× Melee). It exercises the full pipeline:
+
+- `AttackProfile_EarthFist.asset` references `Transition_EarthPunch.asset`. The transition wraps the existing Mixamo punch clip; the impact frame fires through Mixamo's legacy `AnimationEvent` (forwarded by `UnitAnimationEventRelay`) — no Animancer named event was authored on the transition yet, so the legacy event path is what runs in production.
+- `EarthFistAbility` plays via `Ctx.Animancer.PlayAttack(Ctx.Unit, _profile)`. If the driver isn't available or the profile is misconfigured (`transition == null`), the ability falls back to `Ctx.Anim.PlayAttack()` (legacy Animator Controller). Migration is per-skill, not big-bang.
+- `UnitBrainAI.SelectExecuteAbility` picks `EarthFistAbility` when the resolved technique name matches the profile's `techniqueName` and the central driver reports the unit is available; otherwise falls through to the existing punch / kick / dash mix.
+
+When porting the next skill onto the driver, the steps are:
+
+1. Author a `TransitionAsset` for the clip (Animancer Pro Inspector).
+2. Add an `[EventNames]` attribute on the transition for the impact frame; reference it via `StringAsset` on the new `AttackProfile`.
+3. Add the profile to whichever brain/ability path runs the technique — abilities call into the central driver directly, no per-unit driver involved.
+4. Verify against `CombatLogger`'s `ANIM` and `DMG` categories: impact event lands at the expected moment, hit-stop fires on impact, `Recover` re-enters `Decide` at the existing cadence.
+
+Order for the rest of the catalog: Melee combos next, then Mobile, then Rooted, with Summoning and Orb Strike last because they touch the presentation surface most.
 
 If a step requires combat to compensate for animation (re-timing damage to match a clip, faking an impact frame in code), **stop** — that's the inverted relationship described above and the migration plan needs to change, not the combat code.
+
+### Reusable clip libraries: `BattleAnimancerClipLibrary`
+
+For clip packs that don't (yet) deserve per-skill `AttackProfile` wiring — third-party retarget bring-up, locomotion sets, hit-react pools — the project ships `BattleAnimancerClipLibrary`, a generic `ScriptableObject` mapping logical ids (`"idle"`, `"punch"`, `"hit_react"`) to `TransitionAsset`s. It's not a replacement for `AttackProfile`; it's the lightweight tier below it.
+
+When to reach for the library vs an `AttackProfile`:
+
+- **Library** — bring-up, smoke tests, retargeting validation, generic pose pools. Plays a clip; nothing else. No impact event, no combat coupling.
+- **AttackProfile** — production combat skills. Carries ranges, movement mode, root-motion policy, named impact event, knockback parameters. Always the answer for anything that resolves a hit.
+
+First user is the Kubold retargeting bring-up: `Assets/Data/AnimancerClips/Kubold/Kubold_TestClipLibrary.asset` plus the `KuboldClipTester` runtime component drive `Assets/Scenes/KuboldClipTest.unity` (number keys 1–8 cycle the 8 verified clips). Mechanics in `Docs/MOVE_ENGINE_STATUS.md` under "Kubold animation bring-up".
+
+### Locomotion driver: `KuboldLocomotionDriver`
+
+Per-unit `MonoBehaviour` that picks the right locomotion loop every frame from `BattleAnimancerClipLibrary`. Sits next to `CharacterController`, `AnimancerComponent`, and (optionally) `H2HUnit` + `H2HMovementController`. The driver is **decision-only** — it doesn't apply movement, doesn't own one-shots, and yields whenever `SuppressFor` has been called.
+
+**Velocity source:** prefers `H2HMovementController.Velocity` when present (already smoothed via accel/decel curves at the source), falls back to `CharacterController.velocity` for legacy scenes. The controller-fed path is what the H2H training scene uses; reading raw `cc.velocity` produces 0/peak blips when the brain skips frames between conditional `cc.Move` calls.
+
+Each `Update`, the driver resolves three values:
+
+1. **Engaged-state** — derived from `H2HUnit.Phases.GetPhase(this)`. `Engaged` / `Exchange` / `Separating` → fists-up combat-stance loops (`combat_*` ids). `NotEngaged` / `Spotting` / `Approaching` → relaxed standing loops (`loco_*` ids).
+2. **Speed band** — from velocity magnitude: `Idle` (< 0.30 m/s) → `Walk` (< 1.80 m/s) → `Run` (< 4.50 m/s) → `Sprint`. Combat-stance is clamped to walk band — engaged units don't run/sprint by design.
+3. **Direction** — angle of velocity vs `transform.forward`: `Forward` (within ±30° of facing), `Backward` (within ±30° of opposite), `Left` / `Right` (pure cardinal), and four diagonals (`ForwardLeft` / `ForwardRight` / `BackLeft` / `BackRight`) on ±30° cones around 45°/135°.
+
+**Dwell-time hysteresis:** the driver refuses to switch clips within `_minDwellTime` (default 120 ms) of the previous switch. Kills cone-boundary jitter (Forward ↔ ForwardRight when velocity wiggles near 22.5°) and band-boundary jitter (Walk ↔ Idle when speed wiggles near `_idleSpeedThreshold`).
+
+**Turn-in-place:** when the unit is in the Idle band but `H2HMovementController.PendingTurnAngleDegrees` exceeds `_turnInPlaceThreshold` (default 30°), the driver swaps to a turn clip — `*_turn_l90` / `_r90` for moderate turns, `*_turn_l180` / `_r180` once the angle exceeds `_turn180Threshold` (default 120°). Combat-stance gets `combat_turn_*`, standing gets `loco_turn_*`. As the unit's facing closes on the target, the angle drops below threshold and the driver swaps back to idle automatically.
+
+**Start/Stop foot-plant clips:** detects band edges (`Idle → Walk/Run` and the reverse) and plays the matching `_start` / `_stop_lu` / `_stop_ru` clip, holding it for `_transitionHoldSeconds` (default 600 ms) before letting the resolver swap to the loop. Direction-specific: forward, backward, strafe-left, strafe-right have dedicated start clips; diagonals fall through to the loop. The stop foot alternates LU/RU each time so two consecutive stops don't replay the exact same animation. Combat-stance has no `_start` / `_stop` clips in the Kubold pack, so this only fires for standing locomotion (NotEngaged / Approaching). Toggle via `_useStartStopClips` if you want to A/B against pure cross-fade transitions.
+
+**Pivot-into-walk/run starts:** at the idle→moving edge, the driver compares the controller's `IntentDir` against current facing. When the angle exceeds 60°, it swaps the generic `loco_walk_fwd_start` / `loco_run_fwd_start` for the matching pivot variant (`_l90`, `_r90`, `_l135`, `_r135`, `_l180`, `_r180`). This handles "post-Separation re-engage" cleanly — the unit pivots and walks forward in one smooth animation instead of rotating mid-stride.
+
+The combat-stance matrix is full 8-direction (KB_WalkLeft45 / Right45 / Left135 / Right135 plus the cardinals). Standing-walk is 4-cardinal only (diagonals fall back to the nearer cardinal). Standing-run is 6-direction (cardinals + 45° diagonals via the RunStrafeUpdate pack).
+
+Sub-band: at combat walk speed >`_combatWalkFastThreshold` (default 0.75 m/s), the driver swaps from `combat_walk_fwd_loop` (KB_WalkFwd1 ≈ 0.60 m/s) to `combat_walk_fwd_fast` (KB_WalkFwd2 ≈ 0.88 m/s). Avoids visible foot-slide when the unit is pushed near the upper end of combat walk speed.
+
+Phase-specific behavior:
+
+- **`Exchange`** — orchestrator owns playback. Driver returns `combat_idle` so when `SuppressFor` lifts at end-of-strike, it doesn't immediately switch to a moving clip and fight the next one.
+- **`Separating`** — backstep at disengage speed. Direction resolves to Backward → `combat_walk_bwd_loop`.
+- **`Approaching`** — traversal at run speed. Forward direction → `loco_run_fwd_loop`. Sprint kicks in above 4.5 m/s.
+
+Fallback chain: every `combat_*` id falls back to its `loco_*` equivalent if the library is missing the entry, and `loco_*` ids fall back to the legacy aliases (`walk_forward`, `walk_back`, `walk_strafe_L/R`, `idle`). The driver records `_currentLocomotionId` as the *desired* id even when a fallback played, so it doesn't churn re-looking-up every frame.
+
+Public surface:
+
+```csharp
+public string CurrentLocomotionId { get; }
+public bool   IsSuppressed        { get; }
+public void   SuppressFor(float seconds);     // yield for a one-shot
+public void   ClearSuppression();             // force-resume
+public float  ResolvePhaseMaxSpeed();         // smoothed phase clamp for movers
+```
+
+Tunable inspector fields (`_idleSpeedThreshold`, `_combatWalkFastThreshold`, `_walkRunBoundary`, `_runSprintBoundary`, `_forwardCone`, `_backwardCone`, `_diagonalHalfWidth`, `_phaseSpeedSmoothTime`, `_debugLog`) make it easy to retune without code changes when the library or unit speeds shift. Full clip matrix in `Docs/Design/LOCOMOTION_CHEATSHEET.md`.
 
 ---
 

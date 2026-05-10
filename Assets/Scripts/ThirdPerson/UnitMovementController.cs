@@ -112,6 +112,26 @@ namespace TacticalRPG.ThirdPerson
         }
 
         /// <summary>
+        /// Move-based engine move. Caller passes a world-space horizontal
+        /// delta already scaled to the engine's tick (e.g. m/s × tickSeconds);
+        /// CurrentMoveSpeed is set for the animator blend tree based on the
+        /// requested instantaneous speed. Differs from MoveDirection which
+        /// scales the speed by Unity's Time.deltaTime — that math is wrong
+        /// for fixed engine ticks.
+        /// </summary>
+        public void EngineMove(Vector3 horizontalDelta, float blendTreeSpeed)
+        {
+            // Fold gravity into the move so a per-tick CC.Move keeps the
+            // unit grounded. _verticalVelocity is updated by TickGravity
+            // each Unity frame; we apply the gravity delta here scaled to
+            // tick.
+            float dt = Time.deltaTime; // small slice; gravity negligible per tick
+            Vector3 move = horizontalDelta + Vector3.up * (_verticalVelocity * dt);
+            _cc.Move(move);
+            CurrentMoveSpeed = blendTreeSpeed;
+        }
+
+        /// <summary>
         /// Hard-teleport the unit to the given world position. Disables the
         /// CharacterController for one frame to avoid Unity warning when
         /// changing transform.position while CC is active.

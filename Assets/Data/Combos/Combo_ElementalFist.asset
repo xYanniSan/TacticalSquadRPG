@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Combo_ElementalFist
   m_EditorClassIdentifier: Assembly-CSharp::TacticalRPG.DataModels.ComboRecipeDefinition
   recipeName: Elemental Fist
-  description: "Massive all-element punch. (A\u2192B\u2192C\u2192Punch)"
+  description: "Massive all-element punch \u2014 4-strike Earth flurry. (A\u2192B\u2192C\u2192Punch)"
   actionIds:
   - handsign_a
   - handsign_b
@@ -23,3 +23,17 @@ MonoBehaviour:
   element: 3
   powerMultiplier: 2.5
   castType: 0
+  speedCost: 35
+  speedGain: 0
+  speedScaling: 0.5
+  speedGate: 50
+  ccType: 2
+  ccDuration: 1.5
+  ccChance: 0.5
+  ccMagnitude: 0.3
+  targetSpeedShatter: 15
+  targetSoftCapOverride: 0
+  casterSoftCapOverride: 0
+  speedCapModifierDuration: 0
+  strikeCount: 4
+  strikeInterval: 0.2
