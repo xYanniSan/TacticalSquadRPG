@@ -7,11 +7,8 @@ namespace TacticalRPG.Systems.Combat
     /// <summary>
     /// Maps logical animation roles (idle / walk / punch / ...) to Animancer
     /// TransitionAssets. Lets gameplay code request "play 'punch'" without
-    /// caring which underlying clip is wired in.
-    ///
-    /// Used by KuboldClipTester for the Phase-2 retargeting bring-up and
-    /// later by BattleAnimancerDriver as the canonical source of clips when
-    /// move-engine moves call PlayClip(name).
+    /// caring which underlying clip is wired in. Canonical clip source for
+    /// `BattleAnimancerDriver`, `H2HUnit`, and `KuboldLocomotionDriver`.
     /// </summary>
     [CreateAssetMenu(menuName = "TacticalRPG/Combat/Animancer Clip Library",
                      fileName = "BattleAnimancerClipLibrary")]
